@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>口碑哨兵</title>
 <style>
-:root{--bg:#F5F5F5;--card:#fff;--ink:#222226;--ink2:rgba(34,34,38,.68);--mute:rgba(34,34,38,.46);--hair:rgba(48,48,52,.08);--fill:rgba(48,48,52,.05);
+:root{--bg:#F3F3F6;--card:rgba(255,255,255,.8);--ink:#222226;--ink2:rgba(34,34,38,.68);--mute:rgba(34,34,38,.46);--hair:rgba(48,48,52,.08);--fill:rgba(48,48,52,.05);
 --brand:#FF2442;--red:#DF6A72;--redt:#B4434D;--redbg:rgba(223,106,114,.12);--grn:#5A8BC9;--grnt:#3B68A3;--grnbg:rgba(90,139,201,.12);--amb:#D49A3E;--ambt:#8C5E14;--ambbg:rgba(212,154,62,.15);--neu:#D3D6DB;
 --num:"SF Pro Rounded",ui-rounded,"DIN Alternate","PingFang SC",sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -266,9 +266,129 @@ button.row:hover{background:var(--fill)}
 .modal .mr select{border:0;background:var(--fill);border-radius:999px;padding:7px 12px}
 .modal .mr .btn:last-child{margin-left:auto}
 .ex{font-size:12px;border-radius:999px;background:var(--fill);padding:3px 10px;color:var(--ink2)}
-@media (max-width:1180px){.hero{grid-template-columns:1fr 1fr}.pitch{grid-column:1/-1}.s4{grid-column:span 6}.s5,.s7,.s8{grid-column:span 12}.feedc{grid-row:auto!important}.kpis{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.kpi:nth-child(4){border-left:0}.oath{grid-template-columns:1fr}}
-@media (max-width:700px){.eyebrow em{display:none}.hero{grid-template-columns:1fr;padding:22px 20px}.stage{min-height:230px}.big2{font-size:68px}.pitch h1{font-size:27px!important}.wrap{padding:10px 16px 28px}.s4{grid-column:span 12}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi{border-left:0!important;padding:0 16px}.serp{grid-template-columns:1fr}.cmp{grid-template-columns:1fr}.acts{margin-left:0}.feed{height:440px}.logo small{display:none}.qi{grid-template-columns:40px minmax(0,1fr)}.qa{display:none}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* motion: 流动的背景、章节导航、渐显、光晕 */
+@property --b1{syntax:'<color>';inherits:true;initial-value:#F3D5DA}
+@property --b2{syntax:'<color>';inherits:true;initial-value:#E6DEF3}
+@property --b3{syntax:'<color>';inherits:true;initial-value:#D8E4F4}
+.fluid{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;--b1:#F3D5DA;--b2:#E6DEF3;--b3:#D8E4F4;transition:--b1 1.8s ease,--b2 1.8s ease,--b3 1.8s ease}
+.fluid i{position:absolute;width:70vmax;height:70vmax;border-radius:50%;will-change:transform}
+.fluid i:nth-child(1){background:radial-gradient(closest-side,var(--b1),rgba(255,255,255,0));left:-24vmax;top:-20vmax;animation:dr1 28s ease-in-out infinite alternate}
+.fluid i:nth-child(2){background:radial-gradient(closest-side,var(--b2),rgba(255,255,255,0));right:-26vmax;top:8vh;animation:dr2 34s ease-in-out infinite alternate}
+.fluid i:nth-child(3){background:radial-gradient(closest-side,var(--b3),rgba(255,255,255,0));left:12vw;bottom:-38vmax;animation:dr3 40s ease-in-out infinite alternate}
+body[data-ch="2"] .fluid{--b1:#E4DBF3;--b2:#D9E3F5;--b3:#F2DAE2}
+body[data-ch="3"] .fluid{--b1:#D5E3F5;--b2:#D9EBE6;--b3:#E5DDF3}
+@keyframes dr1{to{transform:translate(18vw,22vh) scale(1.15)}}
+@keyframes dr2{to{transform:translate(-22vw,26vh) scale(.9)}}
+@keyframes dr3{to{transform:translate(16vw,-30vh) scale(1.1)}}
+@keyframes flow{to{background-position:300% 0}}
+.c,.kpis,.oath{position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 10px 30px -22px rgba(60,50,100,.35)}
+.c::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(380px circle at var(--mx,-999px) var(--my,-999px),rgba(167,146,201,.10),rgba(255,255,255,0) 65%);opacity:0;transition:opacity .4s}
+.c:hover::before{opacity:1}
+.c>*{position:relative}
+.g1{--acc:#DF6A72}.g2{--acc:#A792C9}.g3{--acc:#5A8BC9}
+.g .c>h2::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 16%,transparent);flex:none}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .9s cubic-bezier(.2,.8,.2,1),box-shadow .3s}
+.rv.in{opacity:1;transform:none}
+.wave{position:absolute;left:0;top:4px;width:100%;height:18px;overflow:visible}
+.cnav{position:fixed;top:12px;left:50%;z-index:30;display:flex;gap:2px;padding:4px;border-radius:999px;background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.8),0 10px 30px -14px rgba(60,50,100,.35);transform:translate(-50%,-160%);opacity:0;transition:transform .55s cubic-bezier(.2,.8,.2,1),opacity .4s}
+.cnav.on{transform:translate(-50%,0);opacity:1}
+.cnav.on.tuck{transform:translate(-50%,-160%);opacity:0}
+.cnav button{position:relative;z-index:1;font-size:13px;padding:6px 14px;border-radius:999px;color:var(--ink2);white-space:nowrap;transition:color .3s}
+.cnav button b{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:500;margin-right:6px;color:var(--mute)}
+.cnav button.on{color:var(--ink);font-weight:600}
+.cnav button.on b{color:var(--redt)}
+.cind{position:absolute;left:0;top:4px;bottom:4px;width:0;border-radius:999px;background:linear-gradient(120deg,#F8E1E4,#ECE6F6 55%,#E1EBF7);transition:transform .55s cubic-bezier(.2,.8,.2,1),width .55s cubic-bezier(.2,.8,.2,1)}
+.words button.on{background:var(--redbg);color:var(--redt)!important;font-weight:600!important}
+.words button.on::after{content:" ×";font-size:.8em;opacity:.8}
+.row.on .n::after{content:" ×";color:var(--redt)}
+.cluster.on{background:#fff;box-shadow:inset 0 0 0 1.5px rgba(223,106,114,.45)}
+.fpill{position:fixed;left:50%;bottom:18px;z-index:31;display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 32px);padding:6px 6px 6px 14px;border-radius:999px;background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.8),0 12px 32px -14px rgba(60,50,100,.4);font-size:13px;transform:translate(-50%,160%);opacity:0;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .35s;pointer-events:none}
+.fpill.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+.fpill>span:first-child{color:var(--mute);font-size:12px}
+.fpill #fpTxt{display:flex;gap:6px;flex-wrap:wrap}
+.fpill #fpTxt button{background:var(--redbg);color:var(--redt);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500}
+.fpill #fpTxt button i{font-style:normal;margin-left:6px;opacity:.75}
+.fpill #fpTxt button:hover{background:rgba(223,106,114,.22)}
+.fpill #fpAll{border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;background:var(--ink);color:#fff}
+/* chapters */
+.chap{display:flex;align-items:flex-end;gap:14px;margin:26px 2px 4px;padding-top:30px;position:relative;scroll-margin-top:64px}
+.chap .cn{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:54px;font-weight:400;line-height:.86;letter-spacing:-1.5px;background:linear-gradient(120deg,#DF6A72,#A792C9 35%,#5A8BC9 65%,#DF6A72);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:flow 14s linear infinite}
+.chap h2{font-size:22px;font-weight:700;letter-spacing:.5px;line-height:1.25}
+.chap p{font-size:13px;color:var(--ink2);margin-top:3px;max-width:62em}
+.chap .win{margin-left:auto;font-size:12px;color:var(--mute);white-space:nowrap;background:var(--card);border-radius:999px;padding:3px 12px}
+.formula button{font:inherit;color:inherit;border-bottom:1.5px dashed rgba(34,34,38,.22);line-height:1.45}
+.formula button:hover{color:var(--ink);border-bottom-color:var(--red)}
+.feedc{display:flex;flex-direction:column}
+.fbox{position:relative;flex:1;min-height:460px}
+.feedc .feed{position:absolute;inset:0;height:auto;margin:0;padding:0 4px 24px 0;overflow-y:auto;overscroll-behavior:contain;overflow-anchor:none}
+.feedc .feed{-webkit-mask-image:linear-gradient(#000 calc(100% - 36px),transparent);mask-image:linear-gradient(#000 calc(100% - 36px),transparent)}
+.feed::-webkit-scrollbar{width:6px}.feed::-webkit-scrollbar-thumb{background:rgba(34,34,38,.16);border-radius:3px}.feed::-webkit-scrollbar-track{background:transparent}
+.newp{position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:2;background:var(--ink);color:#fff;font-size:12px;font-weight:500;border-radius:999px;padding:4px 14px;box-shadow:0 4px 14px rgba(34,34,38,.2)}
+/* ch2 */
+.lr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 4px;border-top:1px solid var(--hair)}
+.lr:first-child{border-top:0}
+.lm{text-align:left;min-width:0;display:block;width:100%;border-radius:10px;padding:2px 4px}
+.lm:hover{background:var(--fill)}
+.lh{display:flex;align-items:center;gap:6px 10px;font-size:14px;flex-wrap:wrap}
+.lh b{font-weight:600}
+.lh .num{color:var(--ink2);font-size:13px}
+.own{font-size:11px;color:var(--ink2);background:var(--fill);border-radius:999px;padding:1px 8px;white-space:nowrap;font-weight:400}
+.lq{font-size:13px;color:var(--ink2);margin-top:3px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ls{font-size:12px;color:var(--mute);margin-top:2px}
+.ls b{color:var(--ink2);font-weight:500}
+.mbar{display:inline-block;width:56px;height:6px;border-radius:3px;background:var(--fill);overflow:hidden}
+.mbar i{display:block;height:100%;background:var(--red);border-radius:3px}
+.btn.sm{padding:5px 12px;font-size:12px;background:var(--fill)}
+.btn.sm.red{background:var(--redbg);color:var(--redt)}
+.btn.sm.red:hover{background:rgba(223,106,114,.2)}
+.vd{font-size:11px;border-radius:999px;padding:1px 8px;font-weight:500;white-space:nowrap}
+.vd.ok{background:var(--grnbg);color:var(--grnt)}.vd.mid{background:var(--ambbg);color:var(--ambt)}.vd.bad{background:var(--redbg);color:var(--redt)}.vd.hid{background:#EEEAF4;color:#5B4A86}.vd.dim{background:var(--fill);color:var(--ink2)}
+.cl{display:grid;grid-template-columns:92px minmax(0,1fr) 64px;gap:4px 12px;align-items:center;padding:9px 6px;border-top:1px solid var(--hair);text-align:left;width:100%;border-radius:10px}
+.cl:first-of-type{border-top:0}
+.cl:hover{background:var(--fill)}
+.cl .nm2{font-size:14px;font-weight:600;line-height:1.3}
+.cl .nm2 small{display:block;font-size:11px;color:var(--mute);font-weight:400}
+.bb{display:grid;grid-template-columns:52px minmax(0,1fr) 30px;gap:6px;align-items:center;font-size:11px;color:var(--mute);line-height:1.7}
+.bb .t{height:6px;border-radius:3px;background:var(--fill);overflow:hidden}
+.bb .t i{display:block;height:100%;border-radius:3px}
+.bb .num{text-align:right;color:var(--ink2)}
+.cl .rt{display:flex;flex-direction:column;align-items:flex-end;gap:3px;font-size:11px;color:var(--mute)}
+.cl .adv{grid-column:2/-1;font-size:12px;color:var(--ink2);line-height:1.5}
+.chipw,.chipl{font-size:11px;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.chipw{background:var(--grnbg);color:var(--grnt)}.chipl{background:var(--redbg);color:var(--redt)}
+.cp{display:block;text-align:left;width:100%;padding:10px 6px;border-top:1px solid var(--hair);border-radius:10px}
+.cp:first-of-type{border-top:0}
+.cp:hover{background:var(--fill)}
+.cp .lh{justify-content:space-between}
+.cp .ch2{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;align-items:center;font-size:12px;color:var(--mute)}
+.take{background:var(--fill);border-radius:12px;padding:9px 12px;font-size:13px;color:var(--ink2);margin-bottom:8px;line-height:1.7}
+.take b{color:var(--ink);font-weight:600}
+/* ch3 */
+.fwc{display:flex;flex-direction:column;align-items:center}
+.fw{display:block;width:100%;max-width:440px;height:auto}
+.fw text{font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif}
+.fwcap{font-size:12px;color:var(--mute);text-align:center;margin-top:2px;line-height:1.7}
+.fwcap b{color:var(--ink2);font-weight:500}
+.ir{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:12px 4px;border-top:1px solid var(--hair)}
+.ir:first-child{border-top:0}
+.ir .lh{font-size:14px}
+.steps{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);margin-top:7px;flex-wrap:wrap}
+.steps span{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.steps span::before{content:"";width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px #C3C7CD}
+.steps span.on{color:var(--ink)}
+.steps span.on::before{background:var(--grn);box-shadow:none}
+.steps i{width:18px;height:1.5px;background:#D9DBDF}
+.steps i.on{background:var(--grn)}
+.impx{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;margin-top:10px;font-size:13px;background:var(--fill);border-radius:12px;padding:9px 12px}
+.impx .btn{margin-left:auto}
+.ebp{font-size:11px;border-radius:999px;padding:0 7px;background:#EEEAF4;color:#5B4A86;white-space:nowrap}
+.vl{display:block;text-align:left;width:100%;padding:9px 4px;border-top:1px solid var(--hair);border-radius:8px}
+.vl:first-child{border-top:0}
+.vl:hover{background:var(--fill)}
+.vl small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+@media (max-width:1180px){.hero{grid-template-columns:1fr 1fr}.pitch{grid-column:1/-1}.s4{grid-column:span 6}.s5,.s7,.s8{grid-column:span 12}.feedc{grid-row:auto!important}.chap .win{display:none}.kpis{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.kpi:nth-child(4){border-left:0}.oath{grid-template-columns:1fr}}
+@media (max-width:700px){.eyebrow em{display:none}.hero{grid-template-columns:1fr;padding:22px 20px}.stage{min-height:230px}.big2{font-size:68px}.pitch h1{font-size:27px!important}.wrap{padding:10px 16px 28px}.s4{grid-column:span 12}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi{border-left:0!important;padding:0 16px}.serp{grid-template-columns:1fr}.cmp{grid-template-columns:1fr}.acts{margin-left:0}.feed{height:440px}.logo small{display:none}.qi{grid-template-columns:40px minmax(0,1fr)}.qa{display:none}.chap{margin-top:20px}.chap .cn{font-size:42px}.cnav{top:auto;bottom:12px;transform:translate(-50%,160%)}.fpill{bottom:64px}.cnav.on{transform:translate(-50%,0)}.cnav.on.tuck{transform:translate(-50%,160%)}.cnav button{padding:6px 11px;font-size:12px}.cnav .full{display:none}.chap h2{font-size:19px}.cl{grid-template-columns:76px minmax(0,1fr)}.cl .rt{grid-column:2;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px}.cl .adv{grid-column:1/-1}.lr,.ir{grid-template-columns:1fr}.lr>:last-child,.ir>:last-child{justify-self:start}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -277,8 +397,12 @@ button.row:hover{background:var(--fill)}
 <radialGradient id="pgH" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
 <radialGradient id="pgC" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFC2CC"/><stop offset="1" stop-color="#FFC2CC" stop-opacity="0"/></radialGradient>
 <linearGradient id="pgL" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A3DEC6"/><stop offset="1" stop-color="#5BAE90"/></linearGradient>
+<linearGradient id="wv" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#DF6A72" stop-opacity="0"/><stop offset=".2" stop-color="#DF6A72" stop-opacity=".55"/><stop offset=".55" stop-color="#A792C9" stop-opacity=".55"/><stop offset=".85" stop-color="#5A8BC9" stop-opacity=".5"/><stop offset="1" stop-color="#5A8BC9" stop-opacity="0"/></linearGradient>
 <linearGradient id="pgL2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B4E6D2"/><stop offset="1" stop-color="#6DBC9E"/></linearGradient>
 </defs></svg>
+<div class="fluid" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="fpill" id="fpill" role="status" aria-live="polite"><span>正在筛选</span><span id="fpTxt"></span><button id="fpAll">全部清除</button></div>
+<nav class="cnav" id="cnav" aria-label="章节"><span class="cind" id="cind"></span><button data-go="ch1"><b>01</b>听见<span class="full">与回应</span></button><button data-go="ch2"><b>02</b>看懂<span class="full">她们要什么</span></button><button data-go="ch3"><b>03</b>说到做到</button></nav>
 <div class="wrap">
   <div class="bar">
     <div class="logo"><span id="logo"></span><b>口碑哨兵</b><small>雾屿 · 修护精华（虚构品牌，演示）</small></div>
@@ -295,8 +419,8 @@ button.row:hover{background:var(--fill)}
     <div class="pitch">
       <div class="eyebrow"><b>口碑哨兵</b><em>Word-of-mouth Sentinel 2026</em><span>给在小红书经营的品牌</span></div>
       <h1><span class="br">「</span>每一条差评背后，<br>都是一个具体的人<span class="br">」</span></h1>
-      <div class="formula"><span>及时听见</span><i>+</i><span>看懂原因</span><i>+</i><span>真诚回应</span><i>=</i><b class="circ">好口碑<svg viewBox="0 0 200 64" preserveAspectRatio="none" aria-hidden="true"><path d="M14 40C10 18 70 6 130 8c50 2 66 16 60 30-8 18-80 24-130 18C26 52 8 44 18 26c6-10 22-16 40-19" fill="none" stroke-width="5" stroke-linecap="round"/></svg></b></div>
-      <p>口碑哨兵帮品牌及时听见小红书上的每一种声音，看懂她为什么不满意，再用真人的方式好好回应。不删帖，不控评，只好好说话。</p>
+      <div class="formula"><button data-go="ch1">及时听见</button><i>+</i><button data-go="ch1">真诚回应</button><i>+</i><button data-go="ch2">看懂需要</button><i>+</i><button data-go="ch3">说到做到</button><i>=</i><b class="circ">好口碑<svg viewBox="0 0 200 64" preserveAspectRatio="none" aria-hidden="true"><path d="M14 40C10 18 70 6 130 8c50 2 66 16 60 30-8 18-80 24-130 18C26 52 8 44 18 26c6-10 22-16 40-19" fill="none" stroke-width="5" stroke-linecap="round"/></svg></b></div>
+      <p>从一条差评出发：回应它，是止损；读懂它，是改进；把改进告诉她，是让更多人愿意在小红书真实地分享。不删帖，不控评，只好好说话。</p>
     </div>
     <div class="stage">
       <svg id="blob" viewBox="0 0 400 340" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -333,6 +457,7 @@ button.row:hover{background:var(--fill)}
     </div>
   </section>
 
+  <div class="chap" id="ch1"><svg class="wave" viewBox="0 0 1200 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 9C150 1 300 17 450 9S750 1 900 9S1100 15 1200 7" fill="none" stroke="url(#wv)" stroke-width="1.5" vector-effect="non-scaling-stroke"><animate attributeName="d" dur="12s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="M0 9C150 1 300 17 450 9S750 1 900 9S1100 15 1200 7;M0 8C150 16 300 2 450 11S750 16 900 6S1100 2 1200 11;M0 9C150 1 300 17 450 9S750 1 900 9S1100 15 1200 7"/></path></svg><span class="cn">01</span><div><h2>听见与回应</h2><p>先止损。每一条差评都值得被及时、具体地回应，尤其是顾客搜你时排在前面的那几篇。</p></div><span class="win">实时 · 跟随筛选</span></div>
   <div class="filters">
     <div class="chips" id="fRange"><button data-v="24h" class="on">24 小时</button><button data-v="7d">7 天</button><button data-v="30d">30 天</button></div>
     <select id="fCh" aria-label="渠道"><option value="-1">全部渠道</option></select>
@@ -342,7 +467,7 @@ button.row:hover{background:var(--fill)}
   </div>
   <div class="kpis" id="kpis"></div>
 
-  <div class="g">
+  <div class="g g1">
     <section class="c s7" id="qSec">
       <div class="tabs" id="qTabs"><button data-q="neg" class="on">待你回应</button><button data-q="pos">值得说声谢谢</button></div>
       <div id="queue"></div>
@@ -360,15 +485,47 @@ button.row:hover{background:var(--fill)}
         <span class="legend r"><span><i class="sw" style="background:var(--grn)"></i>正面</span><span><i class="sw" style="background:var(--neu)"></i>中性</span><span><i class="sw" style="background:var(--red)"></i>负面</span></span></h2>
       <div id="trend"><div class="tip" id="tip"></div></div>
     </section>
-    <section class="c s4 feedc" style="grid-row:span 2">
-      <h2>正在发生 <span class="sub">笔记、评论与私信</span></h2>
-      <div class="feed" id="feed"></div>
+    <section class="c s4 feedc" style="grid-row:span 3">
+      <h2>正在发生 <span class="sub">笔记、评论与私信 · 可上下滚动</span></h2>
+      <div class="fbox"><div class="feed" id="feed"></div><button class="newp" id="newp" hidden></button></div>
     </section>
-    <section class="c s4"><h2>差评从哪来 <span class="sub">点一下可筛选</span></h2><div id="cCat"></div></section>
     <section class="c s4"><h2>大家在聊什么</h2><div id="cWords"></div></section>
     <section class="c s4"><h2>正面、中性、负面</h2><div id="cSent"></div></section>
     <section class="c s4"><h2>在哪儿说的 <span class="sub">红色为负面</span></h2><div id="cCh"></div></section>
     <section class="c s4"><h2>今天的回应</h2><div id="today"></div></section>
+  </div>
+
+  <div class="chap" id="ch2"><svg class="wave" viewBox="0 0 1200 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 9C150 1 300 17 450 9S750 1 900 9S1100 15 1200 7" fill="none" stroke="url(#wv)" stroke-width="1.5" vector-effect="non-scaling-stroke"><animate attributeName="d" dur="14s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="M0 9C150 1 300 17 450 9S750 1 900 9S1100 15 1200 7;M0 8C150 16 300 2 450 11S750 16 900 6S1100 2 1200 11;M0 9C150 1 300 17 450 9S750 1 900 9S1100 15 1200 7"/></path></svg><span class="cn">02</span><div><h2>看懂她们要什么</h2><p>差评是品牌免费拿到的用户调研。她在说产品，也在说你的卖点、你的对手，和她还想要什么。</p></div><span class="win">近 30 天</span></div>
+  <div class="g g2">
+    <section class="c s7"><h2>差评告诉你的事 <span class="sub">按原因归类，交给该改的人</span></h2><div id="cTell"></div></section>
+    <section class="c s5"><h2>你说的卖点，她们认吗 <span class="sub">对照投放 brief</span></h2><div id="cClaim"></div></section>
+    <section class="c s7"><h2>她们还想要什么 <span class="sub">心愿池，藏在差评和追问里</span></h2><div id="cWish"></div></section>
+    <section class="c s5"><h2>她们拿你和谁比 <span class="sub">同类对比笔记</span></h2><div id="cComp"></div></section>
+  </div>
+
+  <div class="chap" id="ch3"><svg class="wave" viewBox="0 0 1200 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 9C150 1 300 17 450 9S750 1 900 9S1100 15 1200 7" fill="none" stroke="url(#wv)" stroke-width="1.5" vector-effect="non-scaling-stroke"><animate attributeName="d" dur="16s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="M0 9C150 1 300 17 450 9S750 1 900 9S1100 15 1200 7;M0 8C150 16 300 2 450 11S750 16 900 6S1100 2 1200 11;M0 9C150 1 300 17 450 9S750 1 900 9S1100 15 1200 7"/></path></svg><span class="cn">03</span><div><h2>说到做到</h2><p>把改进告诉提过的人。当用户发现在小红书说的话真的会被听见、被采纳，就会有更多真实的分享，这是种草最好的土壤。</p></div><span class="win">近 30 天</span></div>
+  <div class="g g3">
+    <section class="c s5 fwc"><h2 style="align-self:stretch">一条声音的回报 <span class="sub">真实内容的飞轮</span></h2>
+      <svg class="fw" id="fw" viewBox="0 0 440 330" role="img" aria-label="声音飞轮：听见、回应、采纳改进、回音触达、新的真实分享">
+        <defs><linearGradient id="fwg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3D0D4"/><stop offset=".5" stop-color="#E4DDF2"/><stop offset="1" stop-color="#CFDEF2"/><animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="18s" repeatCount="indefinite"/></linearGradient></defs>
+        <circle cx="220" cy="165" r="112" fill="none" stroke="url(#fwg)" stroke-width="12"/>
+        <path id="fwp" d="M220 53A112 112 0 0 1 220 277A112 112 0 0 1 220 53" fill="none"/>
+        <g fill="#fff" stroke-width="2"><circle r="5" stroke="#DF6A72"><animateMotion dur="10s" repeatCount="indefinite"><mpath href="#fwp"/></animateMotion></circle><circle r="5" stroke="#9C8CC4"><animateMotion dur="10s" begin="-3.3s" repeatCount="indefinite"><mpath href="#fwp"/></animateMotion></circle><circle r="5" stroke="#5A8BC9"><animateMotion dur="10s" begin="-6.6s" repeatCount="indefinite"><mpath href="#fwp"/></animateMotion></circle></g>
+        <g fill="#fff" stroke="#222226" stroke-opacity=".18" stroke-width="1.5"><circle cx="220" cy="53" r="8"/><circle cx="326.5" cy="130.4" r="8"/><circle cx="285.8" cy="255.6" r="8"/><circle cx="154.2" cy="255.6" r="8"/><circle cx="113.5" cy="130.4" r="8"/></g>
+        <g font-size="13" fill="rgba(34,34,38,.6)">
+          <text x="220" y="18" text-anchor="middle"><tspan id="fw0" font-size="21" font-weight="600" fill="#222226">0</tspan> 条声音</text><text x="220" y="35" text-anchor="middle">① 听见</text>
+          <text x="341" y="127"><tspan id="fw1" font-size="21" font-weight="600" fill="#222226">0</tspan> 条差评</text><text x="341" y="144">② 回应</text>
+          <text x="300" y="262"><tspan id="fw2" font-size="21" font-weight="600" fill="#222226">0</tspan> 项改进</text><text x="300" y="279">③ 采纳</text>
+          <text x="140" y="262" text-anchor="end"><tspan id="fw3" font-size="21" font-weight="600" fill="#222226">0</tspan> 位用户</text><text x="140" y="279" text-anchor="end">④ 回音触达</text>
+          <text x="99" y="127" text-anchor="end"><tspan id="fw4" font-size="21" font-weight="600" fill="#222226">0</tspan> 篇笔记</text><text x="99" y="144" text-anchor="end">⑤ 新的真实分享</text>
+        </g>
+        <text x="220" y="140" text-anchor="middle" font-size="12" fill="rgba(34,34,38,.6)">被回应过的差评作者</text>
+        <text x="220" y="184" text-anchor="middle" font-size="40" font-weight="600" fill="#3B68A3" id="fwR">0%</text>
+        <text x="220" y="206" text-anchor="middle" font-size="12" fill="rgba(34,34,38,.6)">后来又发了一篇笔记</text>
+      </svg>
+      <p class="fwcap" id="fwCap"></p>
+    </section>
+    <section class="c s7"><h2>说到做到的进度 <span class="sub">采纳 → 上线 → 回音给提过的人</span></h2><div id="cImp"></div></section>
   </div>
 
   <section class="oath">
@@ -376,7 +533,7 @@ button.row:hover{background:var(--fill)}
     <ul class="no"><li>不删帖</li><li>不控评</li><li>不刷好评</li><li>不私信施压</li></ul>
     <ul class="yes"><li>要及时</li><li>要具体</li><li>说到要做到</li><li>好评也要回应</li></ul>
   </section>
-  <p class="note">演示说明：数据为前端仿真流，品牌为虚构；研判与回应由规则和模板生成，正式版接入大模型与经授权的数据源。</p>
+  <p class="note">演示说明：数据为前端仿真流，品牌、竞品与投放 brief 均为虚构；研判与回应由规则和模板生成，正式版接入大模型与经授权的数据源。</p>
 </div>
 
 <div id="toasts"></div>
@@ -384,12 +541,13 @@ button.row:hover{background:var(--fill)}
 <aside class="drawer" id="drawer" aria-label="评价详情"></aside>
 <div class="modal" id="modal" role="dialog" aria-label="研判一条评价">
   <h3><span id="logo3"></span>研判一条评价</h3>
-  <p>粘贴任意一条笔记或评论，哨兵会判断情感和原因，并给出回应方案。</p>
+  <p>粘贴任意一条笔记或评论，哨兵会判断情感、原因或心愿，并给出回应方案。</p>
   <textarea id="pTxt" placeholder="例如：用了一周脸上泛红刺痛，客服只让我停用，太敷衍了"></textarea>
   <div class="mr">
     <button class="ex" data-ex="快递五天才到，打开泵头都断了，漏了好多">试试：物流</button>
     <button class="ex" data-ex="听说这个牌子是贴牌的，成分里有激素，大家别买">试试：疑似不实</button>
     <button class="ex" data-ex="敏感肌用了一个月，换季没泛红，会回购">试试：好评</button>
+    <button class="ex" data-ex="要是能出个小样就好了，敏感肌不敢直接买正装">试试：心愿</button>
   </div>
   <div class="mr"><select id="pCh" aria-label="渠道"></select><button class="btn soft" id="pCancel">取消</button><button class="btn red" id="pGo">开始研判</button></div>
 </div>
@@ -399,6 +557,8 @@ button.row:hover{background:var(--fill)}
 const $=s=>document.querySelector(s);
 let sd=20261012;const rnd=()=>{sd=sd+0x6D2B79F5|0;let t=Math.imul(sd^sd>>>15,1|sd);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
 const ri=(a,b)=>a+Math.floor(rnd()*(b-a+1)),pick=a=>a[Math.floor(rnd()*a.length)];
+let sd2=7;const rnd2=()=>{sd2=sd2+0x6D2B79F5|0;let t=Math.imul(sd2^sd2>>>15,1|sd2);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const pick2=a=>a[Math.floor(rnd2()*a.length)];
 const M=60e3,H=60*M,D=24*H;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=n=>n>=10000?(n/10000).toFixed(1).replace(/\.0$/,'')+'w':String(Math.round(n));
@@ -423,13 +583,13 @@ $('#logo').innerHTML=logoSVG(34);$('#logo2').innerHTML=logoSVG(26);$('#logo3').i
 
 const CH=['图文笔记','视频笔记','评论区','直播间','店铺评价','私信'];
 const SN={pos:'正面',neu:'中性',neg:'负面'};
-const CATN={allergy:'过敏/不耐受',gap:'功效落差',logi:'物流包装',svc:'客服售后',price:'价格活动',misuse:'使用方法',fake:'疑似不实',quality:'产品质量',praise:'真实好评',ask:'咨询求问'};
+const CATN={allergy:'过敏/不耐受',gap:'功效落差',logi:'物流包装',svc:'客服售后',price:'价格活动',misuse:'使用方法',fake:'疑似不实',quality:'产品质量',praise:'真实好评',ask:'咨询求问',wish:'心愿建议',vs:'同类对比'};
 const NEGC=['allergy','gap','quality','logi','svc','misuse','price','fake'];
 const T=[
 ['neg','allergy','用雾屿修护精华第三天，两颊开始泛红发烫，停了两天才消下去，敏皮姐妹慎入','第三天两颊泛红发烫',['泛红','敏感肌'],[0,2,4]],
 ['neg','allergy','烂脸了！！用了一周额头爆闭口还刺痛，客服只回了一句建议停用','用了一周额头爆闭口、刺痛',['烂脸','刺痛','闭口'],[0,1,2]],
 ['neg','allergy','上脸有点刺刺的，是不是酒精加多了？有没有姐妹一样','上脸有刺痛感',['刺痛'],[2,3]],
-['neg','gap','吹得那么神，空瓶了毛孔和暗沉一点没变，智商税实锤','空瓶后毛孔和暗沉没有变化',['智商税','没效果'],[0,1,4]],
+['neg','gap','吹得那么神，空瓶了毛孔和暗沉一点没变，智商税实锤','空瓶后毛孔和暗沉没有变化',['智商税','没效果','毛孔'],[0,1,4]],
 ['neg','gap','都说熬夜急救，连熬三天用了第二天还是很垮，没感觉','熬夜后用了没感到改善',['没效果','熬夜'],[0,2]],
 ['neg','logi','快递四天没动，到手泵头断了，精华漏了小半瓶','泵头断了、漏了小半瓶',['漏液','快递'],[4,2,5]],
 ['neg','logi','外盒压得扁扁的，本来想送人的，现在送不出手','外盒被压扁',['包装','快递'],[4,5]],
@@ -460,6 +620,36 @@ const T=[
 ['neu','ask','有人知道雾屿是哪里的牌子吗','问品牌来源',['品牌'],[2],1,'我们是做修护线的国货小品牌，工厂和备案信息放在主页置顶，可以直接查。'],
 ['neu','ask','和面霜一起买划算还是单买划算','问组合怎么买划算',['价格'],[3,2,5],1,'如果本来就缺面霜，组合便宜一些；只想试精华的话，单买旅行装最划算。']
 ].map(a=>({s:a[0],c:a[1],t:a[2],d:a[3],k:a[4],ch:a[5],w:a[6]||1,r:a[7]}));
+T.push(...[
+['neg','gap','说是熬夜急救，连用一周垮脸和黑眼圈都没变化','熬夜急救没感觉',['熬夜','没效果'],[0,2]],
+['neg','gap','毛孔一点没缩，宣传图修得也太狠了','毛孔没有变化',['毛孔','没效果'],[0,1]]
+].map(a=>({s:a[0],c:a[1],t:a[2],d:a[3],k:a[4],ch:a[5],w:.8})));
+// 心愿：藏在差评和追问里的需求
+T.push(...[
+['refill','要是出补充装就好了，每次空瓶直接扔掉好心疼','希望出补充装',['补充装','空瓶'],2],
+['refill','能不能出个大瓶装，两周就用完一瓶','希望出大瓶装',['补充装','回购'],1.2],
+['pump','泵头能不能换个结实点的，已经坏第二次了','希望泵头更结实',['泵头','包装'],.6],
+['trial','想先试再买，出个小样吧，敏皮不敢直接上正装','希望出试用小样',['小样','敏感肌'],.9],
+['guide','能不能出个和A醇怎么搭配的教程，怕叠错','希望出叠用教程',['A醇','用法'],.6],
+['price','希望老客也有价保，别一降价就心寒','希望老客也有价保',['价保','直播间'],.5],
+['info','详情页能不能写清楚孕期能不能用，每次都要问','希望写清孕期能不能用',['孕期','成分'],.5],
+['trial','敏感肌真的需要试用装，正装踩雷太心疼了','希望有试用装',['小样','敏感肌'],.6],
+['pump','泵头太容易坏了，换成滴管也行啊','希望换成滴管',['泵头','包装'],.5],
+['guide','求一个早晚怎么搭配的说明，看了详情页还是不懂','希望有搭配说明',['用法'],.5],
+['price','每次刚买完就降价，能不能给老客保个价','希望给老客保价',['价保'],.4],
+['info','孕期的姐妹想知道到底能不能用，客服说法还不一样','希望说清孕期能不能用',['孕期'],.4]
+].map(a=>({s:'neu',c:'wish',t:a[1],d:a[2],k:a[3],ch:[2,0,4,5],w:a[4],wish:a[0]})));
+// 同类对比（竞品为虚构）
+const COMP=['澄言','栖木','白岚'];
+T.push(...[
+['澄言','雾屿比澄言温和多了，澄言我用着有点刺','比澄言温和',['温和'],['温和'],[]],
+['澄言','澄言便宜快一半，效果好像差不多，有点犹豫','澄言更便宜',['价格'],[],['价格']],
+['澄言','澄言和雾屿都空瓶了，最后回购的是雾屿','两个都用过，回购了雾屿',['回购'],['回购'],[]],
+['栖木','栖木见效快一点，雾屿更稳，敏皮还是选雾屿','栖木见效快，雾屿更稳',['敏感肌'],['温和'],['见效']],
+['栖木','栖木客服回得快，雾屿等了一天才回','栖木客服回得更快',['客服'],[],['客服']],
+['白岚','和白岚比，雾屿质地清爽，叠面霜不搓泥','比白岚清爽',['不搓泥','肤感'],['肤感'],[]],
+['白岚','白岚包装更高级，雾屿泵头老坏','白岚包装更好',['包装','泵头'],[],['包装']]
+].map(a=>({s:'neu',c:'vs',t:a[1],d:a[2],k:[a[0],...a[3]],ch:[0,2,1],w:1,comp:a[0],win:a[4],lose:a[5]})));
 
 const SEV={'烂脸':30,'住院':30,'激素':28,'变质':26,'絮状物':24,'过敏':22,'三无':20,'刺痛':18,'闭口':16,'泛红':16,'贴牌':14,'漏液':12,'智商税':12,'退款':10,'取消购买':12,'批次':10,'客服':8,'降价':8,'没效果':8,'品牌回应':8,'搓泥':6,'包装':6,'快递':6};
 const CYC=[.9,.6,.35,.2,.15,.15,.25,.5,.7,.8,.85,.9,1.1,1,.85,.85,.9,1,1.1,1.3,1.5,1.7,1.8,1.4];
@@ -481,11 +671,13 @@ function mk(tp,t,o={}){
   const likes=o.likes??(note?Math.round(fans*(.03+rnd()*.25))+ri(0,30):ri(0,40));
   const pre=o.raw||tp.s==='neu'?'':pick(['','','','说实话，','真的，','姐妹们，','记录一下：']);
   const it={id:++id,s:tp.s,c:tp.c,t:pre+tp.t,d:tp.d,k:tp.k,r:tp.r,time:t,ch,fans,likes,cmts:Math.round(likes*(.05+rnd()*.15)),
+    wish:tp.wish,comp:tp.comp,win:tp.win,lose:tp.lose,
     au:o.au||pick(N1)+pick(N2)+(rnd()<.3?ri(1,99):''),top:o.top??(note&&fans>2000&&rnd()<(tp.s==='neg'?.15:.35)),echo:o.echo??(tp.s==='neg'&&note?(rnd()<.1?ri(4,8):ri(0,3)):0),status:'new'};
   if(it.s==='neg'&&o.status==null){const age=(START-t)/D,r=rnd();
     it.status=age>3?(r<(it.c==='fake'?.6:.85)?'done':r<.93?'doing':'new'):age>.25?(r<.35?'done':r<.55?'doing':'new'):'new';}
   if(o.status)it.status=o.status;
   if(it.status==='done')it.rt=(rnd()**2.2*24+.4)*H;
+  it.fu=it.s==='neg'&&rnd2()<(it.status==='done'?.22:.04);
   riskOf(it);return it;
 }
 function genOne(t,boost={},negMul=1){
@@ -509,13 +701,49 @@ for(let h=60*24;h>0;h--){
   const n=pois(rate);for(let i=0;i<n;i++)items.push(genOne(t+rnd()*H,boost,nm));
 }
 items.push(mk(T[5],START-46*H,{ch:0,raw:1,fans:8200,likes:6400,top:true,echo:5,status:'done',au:'北北的空瓶记'}),Object.assign(mk(T[3],START-19*H,{ch:0,raw:1,fans:9800,likes:6800,top:true,echo:4,status:'new',au:'一颗桃在上海'}),{keep:1}));
+// ===== 改进：差评与心愿最终落到这里 =====
+const IMPS=[
+ {id:'pump',t:'泵头加固，快递换加厚气泡袋',p:'泵头',cat:'logi',w:1,own:'供应链',what:'泵头换成了加固款，快递改用加厚气泡袋'},
+ {id:'guide',t:'出一篇 A 醇怎么叠用的图文教程',p:'叠用教程',cat:'misuse',w:1,own:'内容',what:'叠用教程放在主页置顶了：A 醇和这瓶错开早晚用'},
+ {id:'trial',t:'出敏感肌试用小样',p:'试用小样',cat:'allergy',w:1,own:'产品部',what:'敏感肌试用小样已经上线，可以先试再决定'},
+ {id:'claim',t:'下线“改善毛孔暗沉”的投放说法',p:'宣传说过头',cat:'gap',w:0,own:'市场部',what:'我们下线了“改善毛孔暗沉”的说法，这瓶主要管屏障稳定，不该说满'},
+ {id:'refill',t:'出补充装',p:'补充装',cat:null,w:1,own:'产品部',what:'补充装上线了，少一个瓶子，也便宜一些'},
+ {id:'price',t:'老客 7 天价保',p:'价保',cat:'price',w:1,own:'运营',what:'老客 7 天价保已上线，降价自动退差价'},
+ {id:'svc',t:'过敏类咨询由负责人跟进，复盘话术',p:'客服敷衍',cat:'svc',w:0,own:'客服',what:'过敏类咨询改由负责人跟进，不再发模板话术'},
+ {id:'quality',t:'异常批次留样复检，结果公开',p:'批次问题',cat:'quality',w:0,own:'质量部',what:'异常批次都会留样复检，结果在主页公开'},
+ {id:'info',t:'详情页写清孕期、敏感肌是否适用',p:'孕期说明',cat:null,w:1,own:'电商运营',what:'详情页写清了孕期和敏感肌是否适用'}
+];
+const IMP={};IMPS.forEach(m=>{m.st=0;m.at=[];IMP[m.id]=m});
+const CIMP={logi:'pump',misuse:'guide',allergy:'trial',gap:'claim',price:'price',svc:'svc',quality:'quality'};
+const DEPT={allergy:'质量部',gap:'市场部',logi:'供应链',svc:'客服',price:'运营',misuse:'内容',fake:'公关 / 法务',quality:'质量部'};
+const asks=(m,x)=>(m.cat&&x.s==='neg'&&x.c===m.cat)||(m.w&&x.wish===m.id);
+function peopleOf(m,t){let n=0;for(const x of items)if(x.time<=t&&x.time>t-30*D&&asks(m,x))n++;return n}
+const EBT=[p=>`之前在评论区提过${p}的事，今天品牌真的回我了，说已经改好了。被听见的感觉还挺好`,p=>`追更｜上次吐槽${p}，品牌把改进写在回复里了，这次愿意再试一瓶`,p=>`原来在小红书说的话品牌真的会看，${p}这件事说到做到了`,p=>`品牌的回音笔记里@了我，${p}真的改了。以后有问题还在这儿说`];
+function mkEB(m,t){
+  const ch=rnd2()<.6?0:2,note=ch<2,fans=Math.round(note?10**(1.6+rnd2()*2):10**(.5+rnd2()*1.8)),likes=note?Math.round(fans*(.05+rnd2()*.2))+Math.floor(rnd2()*30):Math.floor(rnd2()*30);
+  const it={id:++id,s:'pos',c:'praise',t:pick2(EBT)(m.p),d:`${m.p}的问题被改进了`,k:['被听见','说到做到'],time:t,ch,fans,likes,cmts:Math.round(likes*.1),au:pick2(N1)+pick2(N2),top:false,echo:0,status:'new',eb:m.id};
+  riskOf(it);return it;
+}
+// 演示前史：10 天前物流差评集中爆发 → 采纳泵头改进 → 6 天前回音 → 陆续有人因此发笔记
+{const m=IMP.pump;m.st=3;m.at=[START-11*D,START-8*D,START-6*D];m.reach=peopleOf(m,START-6*D);for(let i=0;i<11;i++)items.push(mkEB(m,START-6*D+rnd2()*6*D));
+ IMP.guide.st=1;IMP.guide.at=[START-2*D];}
 items.sort((a,b)=>a.time-b.time);
 {calcSerp();slots.forEach(x=>{if(x.s==='neg'&&x.status!=='done'&&!x.keep){x.status='done';x.rt=x.rt||3*H}})}
 
 // ===== 状态 =====
-const st={range:'24h',ch:-1,sent:'all',kw:null,cat:null,paused:false,open:null,strat:null,q:'neg'};
+const st={range:'24h',ch:-1,sent:'all',kw:null,cat:null,tag:null,paused:false,open:null,dv:null,strat:null,q:'neg'};
 const RG={'24h':{ms:D,n:24,size:H,lab:'近 24 小时'},'7d':{ms:7*D,n:28,size:6*H,lab:'近 7 天'},'30d':{ms:30*D,n:30,size:D,lab:'近 30 天'}};
-const dimOK=it=>(st.ch<0||it.ch===st.ch)&&(!st.kw||it.k.includes(st.kw)||it.t.includes(st.kw))&&(!st.cat||it.c===st.cat);
+const CLAIMS=[
+ {n:'敏感肌修护',b:40,kw:['敏感肌','泛红','红血丝','温和']},
+ {n:'熬夜急救',b:30,kw:['熬夜']},
+ {n:'改善毛孔暗沉',b:20,kw:['毛孔','暗沉']},
+ {n:'高颜值包装',b:10,kw:['颜值','包装']},
+ {n:'清爽不搓泥',b:0,kw:['不搓泥','肤感','油皮']}
+];
+const WL={refill:'出补充装 / 大瓶装',trial:'出试用小样',pump:'泵头更结实',guide:'出叠用教程',price:'老客也有价保',info:'写清孕期能不能用'};
+const tagHit=(it,g)=>g.t==='cat'?it.s==='neg'&&it.c===g.v:g.t==='claim'?it.k.some(k=>CLAIMS[g.v].kw.includes(k)):g.t==='wish'?it.wish===g.v:g.t==='comp'?it.comp===g.v:g.t==='imp'?asks(IMP[g.v],it)||it.eb===g.v:true;
+const tagName=g=>g.t==='cat'?`原因：${CATN[g.v]}`:g.t==='claim'?`卖点：${CLAIMS[g.v].n}`:g.t==='wish'?`心愿：${WL[g.v]}`:g.t==='comp'?`对比：${g.v}`:`改进：${IMP[g.v].p}`;
+const dimOK=it=>(st.ch<0||it.ch===st.ch)&&(!st.kw||it.k.includes(st.kw)||it.t.includes(st.kw))&&(!st.cat||it.c===st.cat)&&(!st.tag||tagHit(it,st.tag));
 const sentOK=it=>st.sent==='all'||it.s===st.sent;
 const ago=t=>{const d=now-t;return d<M?'刚刚':d<H?Math.floor(d/M)+' 分钟前':d<D?Math.floor(d/H)+' 小时前':Math.floor(d/D)+' 天前'};
 const set=(el,h)=>{if(el._h!==h){el.innerHTML=h;el._h=h}};
@@ -537,7 +765,12 @@ function paintHero(h){
   if(shownH!==h){const from=shownH??h,t0=performance.now();shownH=h;
     const step=t=>{const p=Math.min(1,(t-t0)/600);$('#hNum').textContent=Math.round(from+(h-from)*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)}
 }
-if(matchMedia('(prefers-reduced-motion: reduce)').matches)$('#blob').pauseAnimations();
+if(matchMedia('(prefers-reduced-motion: reduce)').matches){$('#blob').pauseAnimations();$('#fw').pauseAnimations()}
+function activeF(){const a=[];if(st.ch>=0)a.push(['ch',`渠道：${CH[st.ch]}`]);if(st.sent!=='all')a.push(['sent',`情感：${SN[st.sent]}`]);if(st.kw)a.push(['kw',`聊到：${st.kw}`]);if(st.cat)a.push(['cat',`原因：${CATN[st.cat]}`]);if(st.tag)a.push(['tag',tagName(st.tag)]);return a}
+function paintPill(){const a=activeF(),fb=document.querySelector('.filters').getBoundingClientRect(),off=fb.bottom<0||fb.top>innerHeight;
+  if(a.length)set($('#fpTxt'),a.map(([k,l])=>`<button data-clr="${k}" title="取消这个筛选">${esc(l)}<i>×</i></button>`).join(''));
+  $('#fpill').classList.toggle('on',!!a.length&&off)}
+function clearAll(){Object.assign(st,{ch:-1,sent:'all',kw:null,cat:null,tag:null});render();renderFeed()}
 function render(){
   calcSerp();
   const R=RG[st.range],t0=now-R.ms,p0=t0-R.ms;
@@ -583,9 +816,6 @@ function render(){
   // 渠道
   const chc=CH.map(()=>[0,0]);cur.forEach(x=>{chc[x.ch][0]++;if(x.s==='neg')chc[x.ch][1]++});const chm=Math.max(1,...chc.map(c=>c[0]));
   set($('#cCh'),`<div class="rows">${CH.map((c,i)=>`<button class="row ${st.ch===i?'on':''}" data-ch="${i}"><span>${c}</span><span class="bar"><i style="width:${(chc[i][0]-chc[i][1])/chm*100}%;background:#C3C7CD"></i><i style="width:${chc[i][1]/chm*100}%;background:var(--red)"></i></span><span class="n">${chc[i][0]}</span></button>`).join('')}</div>`);
-  // 归因
-  const cc={};cur.filter(x=>x.s==='neg').forEach(x=>cc[x.c]=(cc[x.c]||0)+1);const cm=Math.max(1,...Object.values(cc));
-  set($('#cCat'),Object.keys(cc).length?`<div class="rows">${NEGC.filter(c=>cc[c]).sort((a,b)=>cc[b]-cc[a]).map(c=>`<button class="row ${st.cat===c?'on':''}" data-cat="${c}"><span>${CATN[c]}</span><span class="bar"><i style="width:${cc[c]/cm*100}%;background:var(--red)"></i></span><span class="n">${cc[c]}</span></button>`).join('')}</div>`:'<div class="empty">当前筛选下没有负面内容</div>');
   // 热词
   const wc={};cur.forEach(x=>x.k.forEach(k=>{wc[k]=wc[k]||{n:0,neg:0};wc[k].n++;if(x.s==='neg')wc[k].neg++}));
   const ws=Object.entries(wc).sort((a,b)=>b[1].n-a[1].n).slice(0,18);const wm=ws.length?ws[0][1].n:1;
@@ -595,13 +825,81 @@ function render(){
   const saved=slots.reduce((s,x,i)=>s+(x.s==='neg'&&x.status==='done'?60000*VIEW[i]*(.25-.06)*.08*259:0),0);
   set($('#today'),`<div class="rows" style="gap:12px"><div class="prog">近 24 小时值得回应的负面 <b class="num" style="color:var(--ink)">${day.length}</b> 条，已回应 <b class="num" style="color:var(--grnt)">${dd.length}</b> 条</div><div class="prog"><span class="pb"><i style="width:${day.length?dd.length/day.length*100:100}%"></i></span><span class="num">${day.length?Math.round(dd.length/day.length*100):100}%</span></div><div class="prog">首屏差评回应后，每月少流失约 <b class="num" style="color:var(--grnt)">${money(saved)}</b></div><p class="hint">真诚回应后，看到差评的人里放弃购买的比例从 25% 降到 6%（演示假设）。</p></div>`);
   // 筛选
-  const chips=[];if(st.kw)chips.push(['kw',`聊到：${st.kw}`]);if(st.cat)chips.push(['cat',`原因：${CATN[st.cat]}`]);
+  const chips=[];if(st.kw)chips.push(['kw',`聊到：${st.kw}`]);if(st.cat)chips.push(['cat',`原因：${CATN[st.cat]}`]);if(st.tag)chips.push(['tag',tagName(st.tag)]);
   set($('#fChips'),chips.map(([k,l])=>`<span class="tagc">${esc(l)}<button data-clr="${k}" aria-label="移除">×</button></span> `).join(''));
-  $('#fReset').hidden=!(st.kw||st.cat||st.ch>=0||st.sent!=='all');
+  $('#fReset').hidden=!(st.kw||st.cat||st.tag||st.ch>=0||st.sent!=='all');
   $('#fCh').value=st.ch;
   document.querySelectorAll('#fSent button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.sent));
   document.querySelectorAll('#fRange button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.range));
+  renderInsight();paintPill();
   const d=new Date(now);$('#clk').textContent=`${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ===== 第二、三章：看懂 & 说到做到（固定看近 30 天，不随上方筛选） =====
+let S30=null;
+function stats30(){
+  const t0=now-30*D,w0=now-7*D,w1=now-14*D;
+  const S={heard:0,resp:0,eb:0,fuD:0,nD:0,fuO:0,nO:0,cat:{},cq:{},wish:{},wq:{},ww:{},wp:{},comp:{},claim:CLAIMS.map(()=>({n:0,pos:0,neg:0})),cTot:0,ebBy:{}};
+  for(const x of items){
+    if(x.time>now||x.time<=t0)continue;S.heard++;
+    if(x.s==='neg'){S.cat[x.c]=(S.cat[x.c]||0)+1;if(!S.cq[x.c]||x.likes>S.cq[x.c].likes)S.cq[x.c]=x;
+      if(x.status==='done'){S.resp++;S.nD++;if(x.fu)S.fuD++}else{S.nO++;if(x.fu)S.fuO++}}
+    if(x.eb){S.eb++;S.ebBy[x.eb]=(S.ebBy[x.eb]||0)+1}
+    if(x.wish){const w=x.wish;S.wish[w]=(S.wish[w]||0)+1;if(!S.wq[w]||x.likes>S.wq[w].likes)S.wq[w]=x;if(x.time>w0)S.ww[w]=(S.ww[w]||0)+1;else if(x.time>w1)S.wp[w]=(S.wp[w]||0)+1}
+    if(x.comp){const c=S.comp[x.comp]=S.comp[x.comp]||{n:0,win:{},lose:{}};c.n++;x.win.forEach(d=>c.win[d]=(c.win[d]||0)+1);x.lose.forEach(d=>c.lose[d]=(c.lose[d]||0)+1)}
+    CLAIMS.forEach((cl,i)=>{if(x.k.some(k=>cl.kw.includes(k))){const r=S.claim[i];r.n++;S.cTot++;if(x.s==='pos')r.pos++;else if(x.s==='neg')r.neg++}});
+  }
+  return S;
+}
+const ppl=m=>(m.cat?S30.cat[m.cat]||0:0)+(m.w?S30.wish[m.id]||0:0);
+const STG=['待采纳','已采纳','已上线','已回音'];
+function impBtn(m){
+  if(m.st===0)return`<button class="btn sm red" data-imp="${m.id}" data-act="adopt">采纳改进</button>`;
+  if(m.st===1)return`<button class="btn sm" data-imp="${m.id}" data-act="ship">标记已上线</button>`;
+  if(m.st===2)return`<button class="btn sm red" data-imp="${m.id}" data-act="echo">回音给 ${fmt(ppl(m))} 位提过的人</button>`;
+  return`<button class="btn sm" data-imp="${m.id}" data-act="echo">已回音 · 触达 ${fmt(m.reach)} 人</button>`;
+}
+const stepsHTML=m=>`<div class="steps">${['已采纳','已上线','已回音'].map((l,i)=>`${i?`<i class="${m.st>i?'on':''}"></i>`:''}<span class="${m.st>i?'on':''}">${l}</span>`).join('')}</div>`;
+function verdict(i){
+  const c=CLAIMS[i],r=S30.claim[i],pr=r.pos+r.neg?r.pos/(r.pos+r.neg):0,sh=S30.cTot?r.n/S30.cTot*100:0;
+  if(c.b===0&&pr>=.75&&sh>=8)return['被低估','hid','用户自发在夸，你还没说。写进下一轮达人 brief，比你自己说更可信。',pr,sh];
+  if(c.b>0&&pr<.45&&r.neg>=5)return['被质疑','bad',`投了 ${c.b}% 的预算，用户几乎只在吐槽它。这正是「功效落差」差评的来源，建议下线这个说法。`,pr,sh];
+  if(sh<4)return['少有人提','dim','投了钱但没什么人聊，素材可能没打中真实需求。',pr,sh];
+  if(pr>=.8)return['被验证','ok','用户在替你说。继续加码，优先邀请同肤质的真实好评授权加热。',pr,sh];
+  return['有争议','mid','有人认，也有人吐槽。点开看原话，把说法改得更准确。',pr,sh];
+}
+function renderInsight(){
+  S30=stats30();
+  // 差评告诉你的事
+  const cats=NEGC.filter(c=>S30.cat[c]).sort((a,b)=>S30.cat[b]-S30.cat[a]).slice(0,6),cm=Math.max(1,...cats.map(c=>S30.cat[c]));
+  set($('#cTell'),cats.map(c=>{const m=IMP[CIMP[c]],q=S30.cq[c];
+    return`<div class="lr"><button class="lm" data-vt="cat" data-vv="${c}"><span class="lh"><b>${CATN[c]}</b><span class="num">${S30.cat[c]} 条</span><span class="mbar"><i style="width:${S30.cat[c]/cm*100}%"></i></span><span class="own">交给 ${DEPT[c]}</span></span><span class="lq">「${esc(q.d)}」</span><span class="ls">${m?`建议：<b>${esc(m.t)}</b>`:'走平台申诉、摆事实，不需要改产品'}</span></button>${m?(m.st?`<span class="vd ${m.st===3?'ok':'mid'}">${STG[m.st]}</span>`:impBtn(m)):'<span></span>'}</div>`}).join('')||'<div class="empty">近 30 天没有差评</div>');
+  // 卖点对照
+  const vs=CLAIMS.map((c,i)=>verdict(i));
+  const bad=vs.findIndex(v=>v[1]==='bad'),hid=vs.findIndex(v=>v[1]==='hid');
+  set($('#cClaim'),`<div class="take">投放 brief 里的卖点，和她们实际在说的，并不完全一样${bad>=0?`：「<b>${CLAIMS[bad].n}</b>」被质疑`:''}${hid>=0?`，「<b>${CLAIMS[hid].n}</b>」被低估`:''}。</div>`+CLAIMS.map((c,i)=>{const v=vs[i];
+    return`<button class="cl" data-vt="claim" data-vv="${i}"><span class="nm2">${c.n}<small>${c.b?`投放占 ${c.b}%`:'brief 里没有'}</small></span><span><span class="bb"><span>品牌说</span><span class="t"><i style="width:${c.b}%;background:#C3C7CD"></i></span><span class="num">${c.b}%</span></span><span class="bb"><span>她们说</span><span class="t"><i style="width:${Math.min(100,v[4])}%;background:var(--ink2)"></i></span><span class="num">${Math.round(v[4])}%</span></span></span><span class="rt"><span class="vd ${v[1]}">${v[0]}</span><span>好评率 ${Math.round(v[3]*100)}%</span></span><span class="adv">${v[2]}</span></button>`}).join(''));
+  // 心愿池
+  const ws=Object.keys(WL).filter(w=>S30.wish[w]).sort((a,b)=>S30.wish[b]-S30.wish[a]);
+  set($('#cWish'),ws.map(w=>{const m=IMP[w],q=S30.wq[w],d=(S30.ww[w]||0)-(S30.wp[w]||0);
+    return`<div class="lr"><button class="lm" data-vt="wish" data-vv="${w}"><span class="lh"><b>${WL[w]}</b><span class="num">${S30.wish[w]} 人提过</span><span class="ls" style="margin:0">本周 ${d>=0?'▲':'▼'} ${Math.abs(d)}</span><span class="own">交给 ${m.own}</span></span><span class="lq">「${esc(q.t)}」</span>${m.cat&&S30.cat[m.cat]?`<span class="ls">另有 <b>${S30.cat[m.cat]}</b> 条「${CATN[m.cat]}」差评指向同一件事</span>`:''}</button>${m.st?`<span class="vd ${m.st===3?'ok':'mid'}">${STG[m.st]}</span>`:impBtn(m)}</div>`}).join('')||'<div class="empty">暂无</div>');
+  // 同类对比
+  const cs=COMP.filter(c=>S30.comp[c]).sort((a,b)=>S30.comp[b].n-S30.comp[a].n);
+  const W={},L={};cs.forEach(c=>{for(const[k,v]of Object.entries(S30.comp[c].win))W[k]=(W[k]||0)+v;for(const[k,v]of Object.entries(S30.comp[c].lose))L[k]=(L[k]||0)+v});
+  const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,2).map(a=>`「<b>${a[0]}</b>」`).join('和');
+  const chips=(o,cls)=>Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="${cls}">${k} ×${v}</span>`).join('');
+  set($('#cComp'),cs.length?`<div class="take">她们觉得你赢在${top(W)}，输在${top(L)}。输的地方，就是下一张改进清单。</div>`+cs.map(c=>{const o=S30.comp[c];
+    return`<button class="cp" data-vt="comp" data-vv="${c}"><span class="lh"><b>和「${c}」一起被提到</b><span class="num">${o.n} 次</span></span><span class="ch2"><span>赢在</span>${chips(o.win,'chipw')||'—'}<span style="margin-left:6px">输在</span>${chips(o.lose,'chipl')||'—'}</span></button>`}).join(''):'<div class="empty">暂无</div>');
+  // 飞轮
+  const adopted=IMPS.filter(m=>m.st>=1).length,reach=IMPS.reduce((t,m)=>t+(m.st===3?m.reach:0),0),fresh=S30.eb+S30.fuD;
+  [[S30.heard],[S30.resp],[adopted],[reach],[fresh]].forEach((v,i)=>{const e=$('#fw'+i),tx=fmt(v[0]);if(e.textContent!==tx)e.textContent=tx});
+  const rD=S30.nD?S30.fuD/S30.nD:0,rO=S30.nO?S30.fuO/S30.nO:0;$('#fwR').textContent=Math.round(rD*100)+'%';
+  set($('#fwCap'),`没被回应的，只有 <b>${Math.round(rO*100)}%</b>。被认真对待过的人，更愿意继续说真话。<br>其中 <b>${S30.eb}</b> 篇是看到品牌回音后发的（演示假设）。`);
+  // 说到做到的进度
+  const im=IMPS.filter(m=>m.st>=1).sort((a,b)=>(a.st===3)-(b.st===3)||b.at[b.st-1]-a.at[a.st-1]);
+  const nx=IMPS.filter(m=>m.st===0).sort((a,b)=>ppl(b)-ppl(a)).slice(0,3);
+  set($('#cImp'),(im.length?im.map(m=>`<div class="ir"><div style="min-width:0"><div class="lh"><b>${esc(m.t)}</b><span class="own">${m.own}</span></div><div class="ls">来自 ${m.cat?`「${CATN[m.cat]}」差评`:''}${m.cat&&m.w?' + ':''}${m.w?'心愿池':''} · ${fmt(ppl(m))} 人提过${m.st===3?` · 回音后带来 <b>${S30.ebBy[m.id]||0}</b> 篇新笔记`:''}</div>${stepsHTML(m)}</div>${impBtn(m)}</div>`).join('')+`<p class="hint" style="margin-top:8px">改进不告诉用户，就等于没改。回音要 @ 到当初提过的人。</p>`:'<div class="empty">还没有采纳的改进。去第 02 章采纳一条吧。</div>')
+    +(nx.length?`<h4 style="font-size:13px;color:var(--mute);font-weight:500;margin:18px 0 2px">下一步可以采纳 <span style="font-weight:400">按提过的人数排序</span></h4>`+nx.map(m=>`<div class="ir"><div style="min-width:0"><div class="lh"><b>${esc(m.t)}</b><span class="own">${m.own}</span></div><div class="ls">${fmt(ppl(m))} 人提过</div></div>${impBtn(m)}</div>`).join(''):''));
 }
 
 function renderQueue(all,neg,cl){
@@ -610,7 +908,7 @@ function renderQueue(all,neg,cl){
   const pos=all.filter(x=>x.s==='pos'&&x.ch<2).sort((a,b)=>b.likes-a.likes).slice(0,7);
   $('#qTabs').children[0].textContent=`待你回应 ${wl.length}`;
   if(st.q==='neg'){
-    set($('#queue'),(cl?`<button class="cluster" data-kw="${esc(cl.kw)}"><span>「<b>${esc(cl.kw)}</b>」的讨论正在变多：近 3 小时 ${cl.n} 条负面${cl.top?'，其中 1 篇在搜索首屏':''}</span><span style="margin-left:auto;color:var(--ink2)">看看 ›</span></button>`:'')+
+    set($('#queue'),(cl?`<button class="cluster${st.kw===cl.kw?' on':''}" data-kw="${esc(cl.kw)}"><span>「<b>${esc(cl.kw)}</b>」的讨论正在变多：近 3 小时 ${cl.n} 条负面${cl.top?'，其中 1 篇在搜索首屏':''}</span><span style="margin-left:auto;color:var(--ink2)">${st.kw===cl.kw?'正在看 · 再点取消 ×':'只看这些 ›'}</span></button>`:'')+
     (wl.length?wl.slice(0,7).map(x=>`<button class="qi${x.fresh?' fresh':''}" data-id="${x.id}"><span class="rs ${x.risk>=75?'r3':x.risk>=60?'r2':'r1'}">${x.risk}</span><span style="min-width:0"><div class="qt">${esc(x.t)}</div><div class="meta"><span>${CATN[x.c]}</span><span>${CH[x.ch]}</span><span>粉丝 ${fmt(x.fans)}</span><span>${ago(x.time)}</span>${x.echo?`<span>${x.echo} 人附和</span>`:''}</div></span><span class="qa">${rankOf[x.id]?`<span class="pill top">首屏第 ${rankOf[x.id]} 篇</span>`:`<span class="pill st-${x.status}">${x.status==='new'?'待回应':'处理中'}</span>`}<span class="cta">去回应 ›</span></span></button>`).join(''):'<div class="empty">该回应的都回应了。去「值得说声谢谢」看看吧。</div>'));
   }else{
     set($('#queue'),`<p class="hint">真实、具体的好评，是同肤质的人最信任的声音。回她一句谢谢，或邀请她授权加热。</p>`+(pos.length?pos.map(x=>`<button class="qi" data-id="${x.id}"><span class="rs" style="background:var(--grnbg);color:var(--grnt);font-size:12px">${fmt(x.likes)}</span><span style="min-width:0"><div class="qt">${esc(x.t)}</div><div class="meta"><span>${esc(x.au)}</span><span>${CH[x.ch]}</span><span>${ago(x.time)}</span></div></span><span class="qa">${x.inv?'<span class="pill st-done">已邀请授权</span>':'<span class="pill">还没回复</span>'}<span class="cta" style="color:var(--grnt)">说声谢谢 ›</span></span></button>`).join(''):'<div class="empty">当前筛选下暂无好评笔记</div>'));
@@ -668,16 +966,22 @@ $('#trend').addEventListener('mousemove',e=>{
 $('#trend').addEventListener('mouseleave',()=>$('#tip').style.display='none');
 
 // ===== 实时流 =====
-function feedItem(x,fresh){return`<button class="fi${fresh?' fresh':''}" data-id="${x.id}"><span class="av" style="background:${avc(x.au)}">${esc([...x.au][0])}</span><span style="min-width:0"><div class="fh"><b>${esc(x.au)}</b><span>${CH[x.ch]}</span><span class="ago" data-t="${x.time}">${ago(x.time)}</span><span class="sn"><span class="sp ${x.s}">${SN[x.s]}${x.s==='neg'?' '+x.risk:''}</span></span></div><div class="ft">${esc(x.t)}</div></span></button>`}
+function feedItem(x,fresh){return`<button class="fi${fresh?' fresh':''}" data-id="${x.id}"><span class="av" style="background:${avc(x.au)}">${esc([...x.au][0])}</span><span style="min-width:0"><div class="fh"><b>${esc(x.au)}</b><span>${CH[x.ch]}</span><span class="ago" data-t="${x.time}">${ago(x.time)}</span><span class="sn">${x.eb?'<span class="ebp">因回音而发</span> ':''}<span class="sp ${x.s}">${x.c==='wish'?'心愿':x.c==='vs'?'对比':SN[x.s]}${x.s==='neg'?' '+x.risk:''}</span></span></div><div class="ft">${esc(x.t)}</div></span></button>`}
+let newN=0;
 function renderFeed(){
+  newN=0;$('#newp').hidden=true;$('#feed').scrollTop=0;
   const arr=[];for(let i=items.length-1;i>=0&&arr.length<50;i--){const x=items[i];if(x.time<=now&&dimOK(x)&&sentOK(x))arr.push(x)}
   $('#feed').innerHTML=arr.map(x=>feedItem(x)).join('')||'<div class="empty">当前筛选下暂无声音</div>';
 }
 function pushFeed(x){
   if(!(dimOK(x)&&sentOK(x)))return;const f=$('#feed');
   if(f.querySelector('.empty'))f.innerHTML='';
-  f.insertAdjacentHTML('afterbegin',feedItem(x,true));while(f.children.length>50)f.lastChild.remove();
+  const y=f.scrollTop,reading=y>8;
+  f.insertAdjacentHTML('afterbegin',feedItem(x,!reading));
+  if(reading){f.scrollTop=y+f.firstElementChild.offsetHeight;newN++;$('#newp').textContent=`↑ ${newN} 条新声音`;$('#newp').hidden=false}
+  while(f.children.length>60)f.lastChild.remove();
 }
+$('#feed').addEventListener('scroll',e=>{if(e.target.scrollTop<=8&&newN){newN=0;$('#newp').hidden=true}},{passive:true});
 setInterval(()=>document.querySelectorAll('.ago').forEach(e=>e.textContent=ago(+e.dataset.t)),5000);
 
 // ===== 告警 =====
@@ -697,7 +1001,7 @@ function emit(x){
 const SEED={s:'neg',c:'allergy',t:'实测｜敏感肌用雾屿修护精华第3天，两颊泛红还爆了一片闭口，视频里有前后对比。不是黑，就是想提醒和我一样的皮',d:'敏感肌用到第 3 天两颊泛红、爆了一片闭口',k:['泛红','闭口','敏感肌'],ch:[1]};
 const ECHO=[['neg','allergy','我也是！第二天就泛红了，还以为是换季',['泛红']],['neg','allergy','同敏皮，用了一周额头爆闭口',['闭口','敏感肌']],['neg','allergy','还好刷到了，购物车里那瓶先删了',['取消购买','泛红']],['neg','quality','求问是哪个批次？我刚囤了两瓶',['批次','泛红']],['neu','ask','我用着还好，可能真的看肤质',['肤质']],['neg','svc','品牌能不能出来说句话',['品牌回应','泛红']],['neg','allergy','我闺蜜也是泛红，停了才好',['泛红']]];
 const AFTER=[['pos','praise','品牌这条回复挺实在的，不是复制粘贴那种',['真诚回应']],['pos','praise','先退款再查原因，这个处理方式路转粉一点点',['真诚回应']]];
-let story=null;
+let story=null,ebq=[],ebToast=false;
 function startBurst(){
   if(story&&!story.end)return;
   const s=mk({...SEED,w:1},now,{raw:1,fans:23400,likes:1800,top:true,echo:0,status:'new',au:'是阿柚不是阿油'});
@@ -717,6 +1021,7 @@ function storyTick(){
 function tick(){
   now+=M;
   const l=17*CYC[new Date(now).getHours()]/60;let k=pois(l);while(k--)emit(genOne(now-ri(0,50)*1000));
+  for(let i=ebq.length-1;i>=0;i--)if(now>=ebq[i].t){const m=ebq[i].m;ebq.splice(i,1);const x=mkEB(m,now);emit(x);if(!ebToast){ebToast=true;toast(`<div class="h">${logoSVG(22)}有人因为你的回音发了新笔记</div><p>${esc(x.t)}</p><div style="text-align:right"><button class="btn red" style="padding:5px 12px" data-id="${x.id}">去看看</button></div>`)}}
   storyTick();render();
 }
 let timer=setInterval(tick,1000);
@@ -794,30 +1099,84 @@ function stratHTML(x,k){
 
 function drawerHTML(x){
   const facN=['关键词严重度','账号影响力','互动热度','搜索曝光位','附和评论'],facM=[30,20,20,15,15];
-  let h=`<div class="dh"><span class="sp ${x.s}">${SN[x.s]}</span><b>${CATN[x.c]}</b>${x.custom?'<span class="sp neu">手动研判</span>':''}<button class="x" id="dClose" aria-label="关闭">×</button></div><div class="db">`;
+  let h=`<div class="dh"><span class="sp ${x.s}">${x.c==='wish'?'心愿':x.c==='vs'?'对比':SN[x.s]}</span><b>${x.eb?'因回音而发':CATN[x.c]}</b>${x.custom?'<span class="sp neu">手动研判</span>':''}<button class="x" id="dClose" aria-label="关闭">×</button></div><div class="db">`;
   h+=`<div class="sec"><h4>她说了什么</h4><div class="orig"><div class="au"><span class="av" style="background:${avc(x.au)}">${esc([...x.au][0])}</span><b>${esc(x.au)}</b><span>粉丝 ${fmt(x.fans)}</span><span>${CH[x.ch]}</span><span>${ago(x.time)}</span></div><div class="tx">${esc(x.t)}</div><div class="meta" style="margin-top:8px"><span>赞 ${fmt(x.likes)}</span><span>评论 ${fmt(x.cmts)}</span>${x.echo?`<span>${x.echo} 人附和</span>`:''}${rankOf[x.id]?`<span class="pill top">搜索首屏第 ${rankOf[x.id]} 篇</span>`:''}</div></div></div>`;
   if(x.s==='neg'){const kb=K[x.c];if(!st.strat)st.strat=kb.rec;
     h+=`<div class="sec"><h4>有多急</h4><div class="rk2"><div class="big">${x.risk}<small>风险分，满分 100</small></div><div>${x.rf.map((v,i)=>`<div class="fac"><span>${facN[i]}</span><span class="bar"><i style="width:${v/facM[i]*100}%"></i></span><span class="num">${Math.round(v)}</span></div>`).join('')}</div></div></div>`;
     h+=`<div class="sec"><h4>为什么不满意</h4><div class="jg"><div><span>原因</span><b>${CATN[x.c]}</b></div><div><span>真实性</span><b style="color:${kb.tr==='疑似不实'?'var(--redt)':kb.tr==='需核实'?'var(--ambt)':'var(--grnt)'}">${kb.tr}</b></div><div><span>置信度</span><b class="num">${x.custom?Math.max(55,kb.conf-12):kb.conf}%</b></div></div><p class="why">${kb.why}</p><h4 style="margin-top:12px">回应前先核对</h4><ul class="ev">${kb.ev.map(e=>`<li><label><input type="checkbox">${e}</label></li>`).join('')}</ul></div>`;
     const opts=['respond','service','amplify'].concat(x.c==='fake'?['appeal']:[]);
     h+=`<div class="sec"><h4>怎么回应</h4><p class="oathline">回应守则：要及时，要具体，说到要做到。</p><div class="strat">${opts.map(o=>`<button class="${st.strat===o?'on':''}" data-strat="${o}">${STRAT[o]}${kb.rec===o?'<span class="rec">推荐</span>':''}</button>`).join('')}</div>${stratHTML(x,st.strat)}</div>`;
-    if(kb.tk)h+=`<div class="sec"><h4>交给内部改进</h4><div class="box" style="margin-top:0"><div class="bh"><span>改进工单</span>${copyBtn(kb.tk(x))}</div>${esc(kb.tk(x))}</div></div>`;
+    if(kb.tk){const m=IMP[CIMP[x.c]];h+=`<div class="sec"><h4>交给内部改进</h4><div class="box" style="margin-top:0"><div class="bh"><span>改进工单</span>${copyBtn(kb.tk(x))}</div>${esc(kb.tk(x))}</div>${m?`<div class="impx"><span>近 30 天 <b class="num">${fmt(ppl(m))}</b> 人提过同一件事，建议：<b>${esc(m.t)}</b></span>${impBtn(m)}</div>`:''}<p class="hint" style="margin-top:8px">说到做到：改好以后，回到这里告诉她。</p></div>`}
     h+=`</div><div class="da"><button class="btn" data-status="doing" ${x.status==='doing'?'disabled':''}>${x.status==='doing'?'处理中':'标记处理中'}</button><button class="btn red" data-status="done" ${x.status==='done'?'disabled':''}>${x.status==='done'?'已回应':'标记已回应'}</button></div>`;
   }else if(x.s==='pos'){
-    h+=`<div class="sec"><h4>这是一条什么样的好评</h4><div class="jg"><div><span>类型</span><b>真实好评</b></div><div><span>可否加热</span><b style="color:var(--grnt)">可邀请授权</b></div><div><span>聊到</span><b>${esc(x.k[0])}</b></div></div><p class="why">内容具体，有使用时长或场景细节，是同类用户最信任的那种声音。先回一句真诚的谢谢；如果她愿意，通过合作广场取得授权后加热，比品牌自己发内容更有说服力。</p></div><div class="sec"><h4>回她一句谢谢</h4><div class="box" style="margin-top:0"><div class="bh"><span>公开回复</span>${copyBtn(thanks(x))}</div>${esc(thanks(x))}</div></div><div class="sec"><h4>邀请授权</h4><div class="box" style="margin-top:0"><div class="bh"><span>邀约话术（合作广场）</span>${copyBtn(invite(x))}</div>${esc(invite(x))}</div></div></div><div class="da"><button class="btn red" data-inv="${x.id}">${x.inv?'已邀请授权':'邀请她授权加热'}</button></div>`;
+    h+=`<div class="sec"><h4>这是一条什么样的好评</h4><div class="jg"><div><span>类型</span><b>${x.eb?'因回音而发':'真实好评'}</b></div><div><span>可否加热</span><b style="color:var(--grnt)">可邀请授权</b></div><div><span>聊到</span><b>${esc(x.k[0])}</b></div></div><p class="why">${x.eb?`她之前提过「${IMP[x.eb].p}」，看到品牌的回音后写了这篇。这就是说到做到的回报：被认真对待过的人，会继续说真话。`:'内容具体，有使用时长或场景细节，是同类用户最信任的那种声音。'}先回一句真诚的谢谢；如果她愿意，通过合作广场取得授权后加热，比品牌自己发内容更有说服力。</p></div><div class="sec"><h4>回她一句谢谢</h4><div class="box" style="margin-top:0"><div class="bh"><span>公开回复</span>${copyBtn(thanks(x))}</div>${esc(thanks(x))}</div></div><div class="sec"><h4>邀请授权</h4><div class="box" style="margin-top:0"><div class="bh"><span>邀约话术（合作广场）</span>${copyBtn(invite(x))}</div>${esc(invite(x))}</div></div></div><div class="da"><button class="btn red" data-inv="${x.id}">${x.inv?'已邀请授权':'邀请她授权加热'}</button></div>`;
+  }else if(x.c==='wish'){
+    const m=x.wish&&IMP[x.wish];const r=`谢谢你的建议！「${x.d.replace(/^希望/,'')}」我们记下了，已经交给${m?m.own:'产品团队'}评估。有进展会回到这条下面告诉你。`;
+    h+=`<div class="sec"><h4>她希望什么</h4><div class="jg"><div><span>类型</span><b>心愿建议</b></div><div><span>近 30 天提过的人</span><b class="num">${m?fmt(ppl(m)):'—'}</b></div><div><span>该谁来改</span><b>${m?m.own:'待分配'}</b></div></div><p class="why">心愿常常藏在差评和追问里。她愿意说「要是……就好了」，说明还想继续用。采纳以后公开告诉她，是让用户愿意继续真实分享的最好理由。</p>${m?`<div class="impx"><span>对应改进：<b>${esc(m.t)}</b></span>${impBtn(m)}</div>`:''}</div><div class="sec"><h4>先回她一句</h4><div class="box" style="margin-top:0"><div class="bh"><span>公开回复</span>${copyBtn(r)}</div>${esc(r)}</div></div></div>`;
+  }else if(x.c==='vs'){
+    const LM={'包装':'pump','价格':'price','客服':'svc'},m=x.lose.map(d=>IMP[LM[d]]).find(Boolean);
+    const r=x.win.length?`谢谢你认真对比！「${x.win.join('、')}」一直是我们最在意的，后面也会坚持。用着有任何问题，直接在这里说。`:`谢谢你说得这么直接。「${x.lose.join('、')}」这点我们确实还有差距，已经交给团队改进，有进展会回来告诉你。`;
+    h+=`<div class="sec"><h4>她拿你和谁比</h4><div class="jg"><div><span>对比对象</span><b>${esc(x.comp)}</b></div><div><span>你赢在</span><b style="color:var(--grnt)">${x.win.join('、')||'—'}</b></div><div><span>你输在</span><b style="color:var(--redt)">${x.lose.join('、')||'—'}</b></div></div><p class="why">对比笔记往往是下单前的最后一步。不拉踩对手，也不急着比价：把赢的地方讲具体，把输的地方当成改进清单。</p>${m?`<div class="impx"><span>输的这点，对应改进：<b>${esc(m.t)}</b></span>${impBtn(m)}</div>`:''}</div><div class="sec"><h4>建议公开回复</h4><div class="box" style="margin-top:0"><div class="bh"><span>回复</span>${copyBtn(r)}</div>${esc(r)}</div></div></div>`;
   }else{
     const r=x.r||'谢谢你问，这个问题我们在这里公开回答：（请运营补充具体信息）';
     h+=`<div class="sec"><h4>她想知道什么</h4><div class="jg"><div><span>类型</span><b>咨询求问</b></div><div><span>购买意向</span><b style="color:var(--grnt)">较高</b></div><div><span>建议时效</span><b>2 小时内</b></div></div><p class="why">提问的人往往已经在决策边缘，公开回答也会被后来搜索的人看到。答得具体、诚实，比推销更能促成购买。</p></div><div class="sec"><h4>建议公开回复</h4><div class="box" style="margin-top:0"><div class="bh"><span>回复</span>${copyBtn(r)}</div>${esc(r)}</div></div></div>`;
   }
   return h;
 }
-function openD(idn){const x=items.find(i=>i.id===+idn);if(!x)return;if(st.open!==x.id)st.strat=null;st.open=x.id;$('#drawer').innerHTML=drawerHTML(x);$('#drawer').classList.add('on');$('#mask').classList.add('on')}
-function closeD(){st.open=null;$('#drawer').classList.remove('on');$('#mask').classList.remove('on')}
+function showD(h){const d=$('#drawer');const keep=d.classList.contains('on')?d.scrollTop:0;d.innerHTML=h;d.scrollTop=keep;d.classList.add('on');$('#mask').classList.add('on')}
+function openD(idn){const x=items.find(i=>i.id===+idn);if(!x)return;if(st.open!==x.id){st.strat=null;$('#drawer').scrollTop=0}st.open=x.id;st.dv=null;if(!S30)S30=stats30();showD(drawerHTML(x))}
+function closeD(){st.open=null;st.dv=null;$('#drawer').classList.remove('on');$('#mask').classList.remove('on')}
+function refreshD(){if(st.open)openD(st.open);else if(st.dv){st.dv[0]==='imp'?openImp(st.dv[1]):openV(st.dv[0],st.dv[1])}}
+// 一组声音：点第二章任意一行
+function openV(t,v){
+  const g={t,v:t==='claim'?+v:v};if(!st.dv||st.dv[0]!==t||st.dv[1]!==v)$('#drawer').scrollTop=0;st.open=null;st.dv=[t,v];
+  const pool=items.filter(x=>x.time<=now&&x.time>now-30*D&&tagHit(x,g)).sort((a,b)=>b.likes-a.likes);
+  const seen=new Set(),top=pool.filter(x=>{const k=x.t.replace(/^(说实话|真的|姐妹们|记录一下)[，：]/,'');return!seen.has(k)&&seen.add(k)}).slice(0,5);
+  let title,lab,body='',m=null;
+  if(t==='cat'){m=IMP[CIMP[v]];title=CATN[v];lab='差评原因';const kb=K[v],done=pool.filter(x=>x.status==='done').length;
+    body=`<div class="jg"><div><span>近 30 天</span><b class="num">${pool.length} 条</b></div><div><span>已回应</span><b class="num">${pool.length?Math.round(done/pool.length*100):0}%</b></div><div><span>该谁来改</span><b>${DEPT[v]}</b></div></div><p class="why">${kb.why}</p>`;
+    if(kb.tk)body+=`<div class="box"><div class="bh"><span>改进工单</span>${copyBtn(kb.tk(top[0]||{d:CATN[v]}))}</div>${esc(kb.tk(top[0]||{d:CATN[v]}))}</div>`}
+  else if(t==='claim'){const c=CLAIMS[+v],vd=verdict(+v);title=c.n;lab='卖点对照';if(vd[1]==='bad')m=IMP.claim;
+    body=`<div class="jg"><div><span>投放占比</span><b class="num">${c.b}%</b></div><div><span>用户提及占比</span><b class="num">${Math.round(vd[4])}%</b></div><div><span>好评率</span><b class="num">${Math.round(vd[3]*100)}%</b></div></div><p class="why"><span class="vd ${vd[1]}">${vd[0]}</span>　${vd[2]}</p>`}
+  else if(t==='wish'){m=IMP[v];title=WL[v];lab='心愿';
+    body=`<div class="jg"><div><span>近 30 天提过的人</span><b class="num">${S30.wish[v]||0}</b></div><div><span>本周新增</span><b class="num">${S30.ww[v]||0}</b></div><div><span>该谁来改</span><b>${m.own}</b></div></div><p class="why">${m.cat?`除了心愿，还有 ${S30.cat[m.cat]||0} 条「${CATN[m.cat]}」差评指向同一件事。`:''}她们愿意说「要是……就好了」，说明还想继续用。</p>`}
+  else if(t==='comp'){const o=S30.comp[v];title=`和「${v}」一起被提到`;lab='同类对比';const LM={'包装':'pump','价格':'price','客服':'svc'};m=Object.keys(o.lose).map(d=>IMP[LM[d]]).find(Boolean);
+    body=`<div class="jg"><div><span>近 30 天</span><b class="num">${o.n} 次</b></div><div><span>你赢在</span><b style="color:var(--grnt)">${Object.keys(o.win).join('、')||'—'}</b></div><div><span>你输在</span><b style="color:var(--redt)">${Object.keys(o.lose).join('、')||'—'}</b></div></div><p class="why">不拉踩对手。把赢的地方讲具体，输的地方当成改进清单。</p>`}
+  let h=`<div class="dh"><span class="sp neu">${lab}</span><b>${esc(title)}</b><button class="x" id="dClose" aria-label="关闭">×</button></div><div class="db"><div class="sec"><h4>看懂了什么</h4>${body}${m?`<div class="impx"><span>建议改进：<b>${esc(m.t)}</b>（${m.own}）</span>${impBtn(m)}</div>`:''}</div>`;
+  h+=`<div class="sec"><h4>她们的原话 <span style="font-weight:400">按互动排序，点开可逐条回应</span></h4>${top.map(x=>`<button class="vl" data-id="${x.id}">${esc(x.t)}<small>${esc(x.au)} · ${CH[x.ch]} · ${ago(x.time)} · 赞 ${fmt(x.likes)}</small></button>`).join('')||'<div class="empty">暂无</div>'}</div></div>`;
+  const onF=st.tag&&st.tag.t===t&&String(st.tag.v)===String(v);
+  h+=`<div class="da"><button class="btn${onF?' red':''}" data-filt="${t}" data-fv="${v}">${onF?'正在只看这些 · 点击取消 ×':'在「正在发生」里只看这些'}</button></div>`;
+  showD(h);
+}
+// 回音：把改进告诉提过的人
+function openImp(idm){
+  const m=IMP[idm];if(!st.dv||st.dv[1]!==idm)$('#drawer').scrollTop=0;st.open=null;st.dv=['imp',idm];
+  const who=items.filter(x=>x.time<=now&&x.time>now-30*D&&asks(m,x)).sort((a,b)=>b.likes-a.likes),seen=new Set(),names=who.filter(x=>!seen.has(x.au)&&seen.add(x.au)).slice(0,4);
+  const n=m.st===3?m.reach:ppl(m);
+  const note=`「你们说的${m.p}，我们改了」\n过去 30 天，有 ${n} 位姐妹在笔记、评论和私信里提到${m.p}。${m.what}。\n谢谢每一位说出来的人，特别是 ${names.map(x=>'@'+x.au).join(' ')}。\n还有不满意的地方，继续在这里说，我们都在看。`;
+  const one=x=>`你之前说「${x.d}」，我们改了：${m.what}。谢谢你说出来。`;
+  let h=`<div class="dh"><span class="sp pos">说到做到</span><b>回音：${esc(m.t)}</b><button class="x" id="dClose" aria-label="关闭">×</button></div><div class="db">`;
+  h+=`<div class="sec"><h4>改了什么</h4><div class="jg"><div><span>来自</span><b>${m.cat?CATN[m.cat]:''}${m.cat&&m.w?' + ':''}${m.w?'心愿':''}</b></div><div><span>负责</span><b>${m.own}</b></div><div><span>${m.st===3?'已触达':'提过的人'}</span><b class="num">${fmt(n)} 位</b></div></div>${stepsHTML(m)}<p class="why">改进不告诉用户，就等于没改。公开回音、@ 到当初提过的人，是让她们愿意继续在小红书真实分享的最好理由。</p></div>`;
+  h+=`<div class="sec"><h4>回音笔记（品牌号发布）</h4><div class="box" style="margin-top:0"><div class="bh"><span>笔记正文</span>${copyBtn(note)}</div><div style="white-space:pre-wrap">${esc(note)}</div></div></div>`;
+  h+=`<div class="sec"><h4>到她们的评论区逐条回复</h4>${names.map(x=>`<div class="box"><div class="bh"><span>回复 ${esc(x.au)}</span>${copyBtn(one(x))}</div>${esc(one(x))}</div>`).join('')}</div>`;
+  if(m.st===3)h+=`<div class="sec"><h4>回音之后</h4><p class="why" style="margin-top:0">已有 <b>${S30.ebBy[m.id]||0}</b> 篇新笔记是看到回音后发的。</p><button class="link" data-filt="imp" data-fv="${m.id}">在「正在发生」里看看</button></div>`;
+  h+=`</div><div class="da">${m.st===2?`<button class="btn red" data-imp="${m.id}" data-act="send">发出回音，通知 ${fmt(n)} 位提过的人</button>`:m.st===3?`<button class="btn" disabled>已回音 · 触达 ${fmt(m.reach)} 人</button>`:`<button class="btn" disabled>先上线改进，再回音</button>`}</div>`;
+  showD(h);
+}
 
 // ===== 研判一条 =====
 function classify(t){
   const rules=[[/激素|三无|住院|贴牌|造假|骗子|假货/,'fake'],[/变质|酸味|絮状|异味|发霉|分层/,'quality'],[/叠用|叠加|叠着|A醇|几泵|用量|搓泥/,'misuse'],[/过敏|烂脸|刺痛|泛红|痒|爆痘|闭口|红肿/,'allergy'],[/快递|物流|漏|破|压扁|包装|泵头/,'logi'],[/客服|退款|售后|不回|敷衍/,'svc'],[/降价|差价|五折|原价|背刺|贵/,'price'],[/没效果|没用|智商税|没变化|没感觉|夸大/,'gap']];
   const posW=/好用|回购|推荐|喜欢|温和|舒服|惊喜|爱了|空瓶|不错|稳|改善|好看|没泛红|不过敏/,negW=/不推荐|别买|避雷|失望|差|垃圾|坑/;
+  const strong=/烂脸|刺痛|过敏|变质|激素|住院|絮状/.test(t);
+  const comp=COMP.find(n=>t.includes(n));
+  if(comp&&!strong){const DM=[[/温和|刺/,'温和'],[/便宜|贵|价/,'价格'],[/客服/,'客服'],[/包装|泵头/,'包装'],[/清爽|搓泥|质地/,'肤感'],[/见效|效果/,'见效']];
+    const dims=DM.filter(([re])=>re.test(t)).map(a=>a[1]);const win=/雾屿(比|更)|选(了)?雾屿|回购.*雾屿/.test(t);
+    const segs=t.split(/[，。！!？?,；;\n]/).filter(Boolean);return{s:'neu',c:'vs',d:(segs[0]||t).slice(0,26),k:[comp],comp,win:win?dims:[],lose:win?[]:dims}}
+  if(/要是|希望|能不能出|求出|出个|建议出|能不能换|能不能写|就好了/.test(t)&&!strong){
+    const wish=/补充装|大瓶/.test(t)?'refill':/小样|试用/.test(t)?'trial':/泵头/.test(t)?'pump':/教程|怎么搭|叠用/.test(t)?'guide':/价保/.test(t)?'price':/孕期|写清/.test(t)?'info':null;
+    const segs=t.split(/[，。！!？?,；;\n]/).filter(Boolean);let d=segs.find(z=>/要是|希望|能不能|出个|就好了/.test(z))||segs[0];d=d.replace(/^(要是|希望|能不能)/,'').replace(/就好了$/,'');
+    return{s:'neu',c:'wish',d:('希望'+d).slice(0,26),k:wish?[{refill:'补充装',trial:'小样',pump:'泵头',guide:'用法',price:'价保',info:'孕期'}[wish]]:['心愿'],wish}}
   let c=null;for(const[re,k]of rules)if(re.test(t)){c=k;break}
   let s;if(posW.test(t)&&!negW.test(t)&&!/烂脸|刺痛|过敏了|变质|漏/.test(t)){s='pos';c='praise'}else if(c||negW.test(t)){s='neg';c=c||'gap'}else{s=/[?？吗]/.test(t)?'neu':'pos';c=s==='neu'?'ask':'praise'}
   const lex=Object.keys(SEV).concat(['敏感肌','回购','温和','包装','A醇','空瓶']);
@@ -832,7 +1191,7 @@ function closeM(){$('#modal').classList.remove('on');if(!st.open)$('#mask').clas
 $('#pGo').onclick=()=>{
   const t=$('#pTxt').value.trim();if(!t){$('#pTxt').focus();return}
   const r=classify(t),ch=+$('#pCh').value;
-  const x=mk({s:r.s,c:r.c,t,d:r.d,k:r.k,ch:[ch]},now,{ch,raw:1,fans:ch<2?3200:180,likes:ch<2?260:12,echo:0,top:false,status:'new',au:'手动粘贴'});
+  const x=mk({s:r.s,c:r.c,t,d:r.d,k:r.k,ch:[ch],wish:r.wish,comp:r.comp,win:r.win,lose:r.lose},now,{ch,raw:1,fans:ch<2?3200:180,likes:ch<2?260:12,echo:0,top:false,status:'new',au:'手动粘贴'});
   x.custom=true;emit(x);render();closeM();$('#pTxt').value='';openD(x.id);
 };
 
@@ -845,6 +1204,16 @@ document.addEventListener('click',e=>{
   if(ds.copy!=null){const v=ds.copy;(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).catch(()=>{const a=document.createElement('textarea');a.value=v;document.body.append(a);a.select();document.execCommand('copy');a.remove()});toast('<div class="h">已复制</div>','info');return}
   if(ds.ex){$('#pTxt').value=ds.ex;return}
   if(ds.strat){st.strat=ds.strat;openD(st.open);return}
+  if(t.dataset.go){$('#'+ds.go).scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(ds.vt){openV(ds.vt,ds.vv);return}
+  if(ds.filt){const v=ds.filt==='claim'?+ds.fv:ds.fv;if(st.tag&&st.tag.t===ds.filt&&String(st.tag.v)===String(v)){st.tag=null;render();renderFeed();refreshD();return}
+    st.tag={t:ds.filt,v};closeD();render();renderFeed();$('.feedc').scrollIntoView({behavior:'smooth',block:'center'});return}
+  if(ds.imp){const m=IMP[ds.imp],a=ds.act;
+    if(a==='adopt'){m.st=1;m.at[0]=now;toast(`<div class="h">${logoSVG(22)}已采纳，交给${m.own}</div><p>改好以后，记得回来告诉提过的 ${fmt(ppl(m))} 个人。</p>`,'info')}
+    else if(a==='ship'){m.st=2;m.at[1]=now;toast(`<div class="h">${logoSVG(22)}改进已上线</div><p>下一步：把这件事告诉提过的人。</p>`,'info')}
+    else if(a==='echo'){render();openImp(m.id);return}
+    else if(a==='send'){m.st=3;m.at[2]=now;m.reach=ppl(m);for(let i=0;i<5;i++)ebq.push({t:now+(2+i*3+ri(0,2))*M,m});toast(`<div class="h">${logoSVG(22)}回音已发出</div><p>${fmt(m.reach)} 位提过的人会收到通知。说到做到。</p>`,'info')}
+    render();refreshD();return}
   if(ds.q){st.q=ds.q;render();return}
   if(ds.inv){const u=items.find(i=>i.id===+ds.inv);if(u){u.inv=true;t.textContent=t.closest('.da')?'已邀请授权':'已邀请';toast('<div class="h">已发送授权邀约</div><p>她同意后，这篇笔记会进入合作广场候选，可直接加热。</p>','info');render()}return}
   if(ds.status){const x=items.find(i=>i.id===st.open);if(!x)return;const ri0=rankOf[x.id],before=ri0?slotDebt(x,ri0-1):0;x.status=ds.status;if(ds.status==='done')x.rt=now-x.time;
@@ -856,21 +1225,40 @@ document.addEventListener('click',e=>{
   if(ds.ch){st.ch=st.ch===+ds.ch?-1:+ds.ch;render();renderFeed();return}
   if(ds.cat){st.cat=st.cat===ds.cat?null:ds.cat;render();renderFeed();return}
   if(ds.kw){st.kw=st.kw===ds.kw?null:ds.kw;render();renderFeed();return}
-  if(ds.clr){st[ds.clr]=null;render();renderFeed();return}
+  if(ds.clr){const k=ds.clr;st[k]=k==='ch'?-1:k==='sent'?'all':null;render();renderFeed();if(st.dv&&st.dv[0]!=='imp')refreshD();return}
+  if(t.id==='fpAll'){clearAll();return}
   if(t.parentElement&&t.parentElement.id==='fRange'){st.range=ds.v;render();return}
   if(t.parentElement&&t.parentElement.id==='fSent'){st.sent=ds.v;render();renderFeed();return}
-  if(t.id==='fReset'){Object.assign(st,{ch:-1,sent:'all',kw:null,cat:null});render();renderFeed();return}
+  if(t.id==='fReset'){clearAll();return}
   if(t.id==='goQ'){st.q='neg';render();$('#qSec').scrollIntoView({behavior:'smooth',block:'start'});return}
   if(t.id==='bPause'){st.paused=!st.paused;if(st.paused)clearInterval(timer);else timer=setInterval(tick,1000);t.textContent=st.paused?'继续':'暂停';$('#clock').classList.toggle('paused',st.paused);$('#clkL').textContent=st.paused?'已暂停':'正在倾听';return}
   if(t.id==='bBurst'){if(story&&!story.end)toast('<div class="h">扩散事件进行中</div><p>先去「待你回应」处理那篇首屏笔记。</p>','info');else{startBurst();render()}return}
+  if(t.id==='newp'){$('#feed').scrollTo({top:0,behavior:'smooth'});return}
   if(t.id==='bPaste'){openM();return}
   if(t.id==='pCancel'){closeM();return}
   if(t.id==='bBell'){bell=0;$('#bellN').hidden=true;st.q='neg';render();$('#qSec').scrollIntoView({behavior:'smooth',block:'start'});return}
 });
 $('#fCh').onchange=e=>{st.ch=+e.target.value;render();renderFeed()};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeD();closeM()}});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const open=$('#drawer').classList.contains('on')||$('#modal').classList.contains('on');if(open){closeD();closeM()}else if(activeF().length)clearAll()});
 let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(render,150)});
-render();renderFeed();
+// ===== 动效：章节色彩流动、导航、渐显、光晕 =====
+const chs=['ch1','ch2','ch3'].map(i=>$('#'+i)),navB=[...document.querySelectorAll('#cnav button')];let curK=-1;
+function moveInd(k){const b=navB[k];$('#cind').style.width=b.offsetWidth+'px';$('#cind').style.transform=`translateX(${b.offsetLeft-4}px)`;navB.forEach((x,i)=>x.classList.toggle('on',i===k))}
+let lastY=scrollY;
+function onScroll(){
+  const sy=scrollY;if(sy>lastY+8){$('#cnav').classList.add('tuck');lastY=sy}else if(sy<lastY-8){$('#cnav').classList.remove('tuck');lastY=sy}
+  const y=innerHeight*.5;let k=0;chs.forEach((c,i)=>{if(c.getBoundingClientRect().top<y)k=i});
+  if(k!==curK){curK=k;document.body.dataset.ch=k+1;moveInd(k)}
+  $('#cnav').classList.toggle('on',$('#hero').getBoundingClientRect().bottom<60);paintPill();
+}
+let sq=false;addEventListener('scroll',()=>{if(!sq){sq=true;requestAnimationFrame(()=>{sq=false;onScroll()})}},{passive:true});
+addEventListener('resize',()=>{curK=-1;onScroll()});
+if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const el=e.target;el.classList.add('in');io.unobserve(el);setTimeout(()=>el.style.transitionDelay='',1300)}}),{rootMargin:'0px 0px -6% 0px'});
+  document.querySelectorAll('.g .c,.chap,.kpis,.oath').forEach(el=>{const sib=[...el.parentElement.children].indexOf(el);el.classList.add('rv');el.style.transitionDelay=(sib%3)*90+'ms';io.observe(el)});
+}
+document.addEventListener('pointermove',e=>{const c=e.target.closest&&e.target.closest('.c');if(!c)return;const r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px')},{passive:true});
+render();renderFeed();onScroll();
 })();
 </script>
 </body>
