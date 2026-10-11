@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>口碑哨兵</title>
+<style>
+:root{--bg:#F5F5F5;--card:#fff;--ink:#222226;--ink2:rgba(34,34,38,.68);--mute:rgba(34,34,38,.46);--hair:rgba(48,48,52,.08);--fill:rgba(48,48,52,.05);
+--brand:#FF2442;--red:#DF6A72;--redt:#B4434D;--redbg:rgba(223,106,114,.12);--grn:#5A8BC9;--grnt:#3B68A3;--grnbg:rgba(90,139,201,.12);--amb:#D49A3E;--ambt:#8C5E14;--ambbg:rgba(212,154,62,.15);--neu:#D3D6DB;
+--num:"SF Pro Rounded",ui-rounded,"DIN Alternate","PingFang SC",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.6 "PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+button,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:8px}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums}
+.wrap{max-width:1400px;margin:0 auto;padding:12px 20px 36px}
+/* top bar */
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px}
+.logo b{font-size:18px;font-weight:600;letter-spacing:.5px}
+.logo small{color:var(--mute);font-size:12px;margin-left:4px}
+.clock{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink2);background:var(--card);border-radius:999px;padding:4px 12px}
+.clock .num{color:var(--ink);font-weight:600}
+.dot{width:7px;height:7px;border-radius:50%;background:#4FA88A;animation:pulse 1.8s infinite}
+.paused .dot{animation:none;background:var(--mute)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(79,168,138,.5)}70%{box-shadow:0 0 0 7px rgba(79,168,138,0)}}
+.acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.btn{border-radius:999px;padding:7px 16px;font-size:13px;font-weight:500;background:var(--card);white-space:nowrap}
+.btn:hover{box-shadow:inset 0 0 0 1px var(--hair)}
+.btn.red{background:var(--brand);color:#fff}
+.btn.red:hover{background:#F01836}
+.btn.soft{background:var(--fill)}
+.btn[disabled]{opacity:.5;cursor:default}
+.bell{position:relative}
+.bell em{position:absolute;top:-5px;right:-4px;background:var(--brand);color:#fff;font-style:normal;font-size:11px;border-radius:9px;min-width:18px;height:18px;line-height:18px;text-align:center;padding:0 4px}
+/* hero: 口碑液体 */
+@property --g{syntax:'<color>';inherits:true;initial-value:#E9EEF5}
+@property --l0{syntax:'<color>';inherits:true;initial-value:#FFFFFF}
+@property --l1{syntax:'<color>';inherits:true;initial-value:#D3E1F3}
+@property --l2{syntax:'<color>';inherits:true;initial-value:#8FAED6}
+@property --l3{syntax:'<color>';inherits:true;initial-value:#F0E9F7}
+@property --l4{syntax:'<color>';inherits:true;initial-value:#B8CDEA}
+.hero{--g:#E9EEF5;--l0:#FFFFFF;--l1:#D3E1F3;--l2:#8FAED6;--l3:#F0E9F7;--l4:#B8CDEA;--zt:#3B68A3;
+  margin-top:12px;border-radius:28px;background:var(--g);color:var(--ink);position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,.78fr);gap:8px 20px;padding:30px 34px;min-height:370px;
+  transition:--g 1.6s ease,--l0 1.6s ease,--l1 1.6s ease,--l2 1.6s ease,--l3 1.6s ease,--l4 1.6s ease}
+.hero[data-z=mid]{--g:#F3ECE1;--l1:#F2E0C2;--l2:#C9A773;--l3:#E8EEF7;--l4:#E8CC9C;--zt:#8C5E14}
+.hero[data-z=bad]{--g:#F6E7E8;--l1:#F3D0D4;--l2:#CC8E96;--l3:#EEEBF7;--l4:#E9B3BA;--zt:#A33A44}
+.pitch{position:relative;display:flex;flex-direction:column;justify-content:center;z-index:1}
+.eyebrow{display:flex;align-items:center;gap:4px 10px;flex-wrap:wrap;font-size:13px;color:var(--ink2)}
+.eyebrow>*{white-space:nowrap}
+.eyebrow b{color:var(--ink);font-weight:600}
+.eyebrow em{font-style:normal;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.2px;color:var(--mute)}
+.pitch h1{font-size:38px;line-height:1.32;font-weight:700;letter-spacing:.5px;margin:16px 0 14px}
+.pitch h1 .br{color:var(--red);font-weight:500;margin:0 -.12em}
+.circ{position:relative;display:inline-block;white-space:nowrap}
+.circ svg{position:absolute;left:-14%;top:-30%;width:128%;height:160%;pointer-events:none;overflow:visible}
+.circ svg path{stroke:var(--red)}
+.formula{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:16px;font-weight:500;color:var(--ink2);margin-bottom:14px}
+.formula i{font-style:normal;color:var(--mute)}
+.formula b{color:var(--ink);font-weight:700;margin-left:8px}
+.pitch p{font-size:14px;color:var(--ink2);max-width:30em}
+.stage{position:relative;min-height:300px}
+.stage>svg{position:absolute;inset:0;width:100%;height:100%}
+.mascot svg{display:block}
+.mascot{position:absolute;left:50%;top:48%;width:128px;transform:translate(-50%,-50%);animation:bob 4.6s ease-in-out infinite;filter:drop-shadow(0 8px 12px rgba(80,60,70,.16))}
+.mascot.pop svg{animation:pop .6s ease}
+@keyframes bob{50%{transform:translate(-50%,calc(-50% - 8px)) rotate(-2deg)}}
+@keyframes pop{40%{transform:scale(1.15)}}
+.read{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:center}
+.read .lab{font-size:13px;color:var(--ink2)}
+.big2{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:92px;font-weight:500;line-height:1;letter-spacing:-3px;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+.zrow{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink2)}
+.zp{font-size:13px;font-weight:600;border-radius:999px;padding:2px 12px;background:rgba(255,255,255,.85);color:var(--zt)}
+.brief{font-size:13px;color:var(--ink2);line-height:1.75;margin-top:12px}
+.brief b{color:var(--ink);font-weight:600}
+.go{margin-top:12px;align-self:flex-start;font-size:13px;font-weight:600;background:#fff;color:var(--ink);border-radius:999px;padding:7px 16px;box-shadow:0 0 0 1px var(--hair)}
+/* filters + kpi */
+.filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px}
+.chips{display:inline-flex;gap:4px;background:var(--card);border-radius:999px;padding:3px}
+.chips button{padding:4px 12px;border-radius:999px;font-size:13px;color:var(--ink2)}
+.chips button.on{background:var(--redbg);color:var(--redt);font-weight:500}
+.filters select{border:0;border-radius:999px;padding:6px 12px;background:var(--card);font-size:13px}
+.tagc{display:inline-flex;align-items:center;gap:6px;background:var(--redbg);color:var(--redt);border-radius:999px;padding:4px 6px 4px 12px;font-size:13px}
+.tagc button{width:18px;height:18px;border-radius:50%;line-height:1;color:var(--redt)}
+.link{font-size:13px;color:var(--ink2);text-decoration:underline;text-underline-offset:3px}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--card);border-radius:16px;margin-top:10px;padding:14px 0}
+.kpi{padding:0 20px;border-left:1px solid var(--hair)}
+.kpi:first-child{border-left:0}
+.kpi .l{font-size:12px;color:var(--mute)}
+.kpi .v{font-size:28px;font-weight:600;line-height:1.3}
+.kpi .v small{font-size:13px;font-weight:400;color:var(--ink2);margin-left:2px}
+.kpi .d{font-size:12px;color:var(--mute)}
+.bad{color:var(--redt)}.good{color:var(--grnt)}
+/* grid */
+.g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px;margin-top:12px}
+.s4{grid-column:span 4}.s5{grid-column:span 5}.s7{grid-column:span 7}.s8{grid-column:span 8}
+.c{background:var(--card);border-radius:16px;padding:16px 18px;min-width:0}
+.c h2{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.c h2 .sub{font-weight:400;color:var(--mute);font-size:12px}
+.c h2 .r{margin-left:auto}
+/* queue */
+.tabs{display:flex;gap:20px;border-bottom:1px solid var(--hair);margin:-4px 0 12px}
+.tabs button{padding:6px 0 10px;font-size:15px;color:var(--mute);font-weight:500;position:relative}
+.tabs button.on{color:var(--ink);font-weight:600}
+.tabs button.on::after{content:"";position:absolute;left:25%;right:25%;bottom:-1px;height:3px;border-radius:3px;background:var(--brand)}
+.cluster{display:flex;align-items:center;gap:10px;background:var(--redbg);border-radius:12px;padding:9px 14px;margin-bottom:8px;font-size:13px;width:100%;text-align:left}
+.cluster b{color:var(--redt)}
+.qi{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 6px;border-radius:12px;text-align:left;width:100%}
+.qi:hover{background:var(--fill)}
+.rs{font-family:var(--num);font-size:18px;font-weight:600;text-align:center;border-radius:12px;height:44px;display:grid;place-items:center}
+.r3{background:#F4D0D4;color:#A33A44}.r2{background:var(--redbg);color:var(--redt)}.r1{background:var(--ambbg);color:var(--ambt)}
+.qt{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;color:var(--mute);margin-top:2px}
+.qa{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.pill{font-size:11px;border-radius:999px;padding:1px 8px;white-space:nowrap;background:var(--fill);color:var(--ink2)}
+.pill.top{background:#F4D0D4;color:#A33A44}
+.st-new{background:var(--redbg);color:var(--redt)}.st-doing{background:var(--ambbg);color:var(--ambt)}.st-done{background:var(--grnbg);color:var(--grnt)}
+.cta{font-size:12px;color:var(--redt);font-weight:500}
+.empty{color:var(--mute);font-size:13px;padding:18px 4px}
+.hint{font-size:12px;color:var(--mute);margin:0 0 6px}
+/* serp phone */
+.serp{display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px;align-items:start}
+.phone{border-radius:28px;background:#F5F5F5;box-shadow:inset 0 0 0 6px #E4E4E7;padding:14px 10px 10px;height:480px;display:flex;flex-direction:column;overflow:hidden}
+.sbar{display:flex;align-items:center;gap:8px;font-size:13px;margin:0 4px 6px;color:var(--ink)}
+.sin{flex:1;display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:999px;padding:5px 10px 5px 12px}
+.sin i{font-style:normal;width:15px;height:15px;border-radius:50%;background:#C9CBD0;color:#fff;font-size:11px;line-height:15px;text-align:center}
+.sgo{font-size:13px}
+.stabs{display:flex;gap:16px;font-size:13px;color:var(--ink2);padding:2px 6px 8px}
+.stabs .on{color:var(--ink);font-weight:600;position:relative}
+.stabs .on::after{content:"";position:absolute;left:15%;right:15%;bottom:-5px;height:2px;border-radius:2px;background:var(--brand)}
+.wf{flex:1;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:start;padding:0 2px;scrollbar-width:thin}
+.col{display:flex;flex-direction:column;gap:6px}
+.nc{text-align:left;border-radius:8px;overflow:hidden;background:#fff;width:100%;display:block}
+.nc:hover{box-shadow:0 0 0 1.5px rgba(48,48,52,.2)}
+.cv{position:relative;padding:28px 9px 10px;font-size:14px;font-weight:700;line-height:1.35;display:flex;align-items:flex-end;letter-spacing:.3px}
+.cv .q{color:var(--red);font-weight:500}
+.cv .rk{position:absolute;left:6px;top:6px;font-family:var(--num);font-size:11px;background:rgba(255,255,255,.9);border-radius:999px;padding:0 7px;color:var(--ink2)}
+.cv .flag{position:absolute;left:6px;top:6px;font-size:11px;border-radius:7px 7px 7px 2px;padding:1px 7px;color:#fff;background:var(--red);font-weight:500}
+.cv .flag.ok{background:var(--grn)}
+.nt{font-size:12.5px;line-height:1.45;padding:7px 8px 0;margin-bottom:5px;max-height:calc(2.9em + 7px);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ink)}
+.nm{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:5px;align-items:center;font-size:10.5px;color:var(--mute);padding:2px 8px 8px}
+.nm .a{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:9px;color:var(--ink)}
+.nm .u{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.nm .l{display:flex;align-items:center;gap:2px}
+.sx .big{font-family:var(--num);font-size:40px;font-weight:600;line-height:1.1}
+.sx .big small{font-size:14px;font-weight:400;color:var(--ink2);margin-left:4px}
+.sx .lab{font-size:13px;color:var(--ink2);margin-top:16px}
+.sx .lab:first-child{margin-top:0}
+.sx p{font-size:12px;color:var(--mute);margin-top:4px;line-height:1.7}
+.howbox{display:none;margin-top:8px;font-size:12px;color:var(--ink2);background:var(--fill);border-radius:10px;padding:8px 10px;line-height:1.7}
+.howbox.on{display:block}
+/* trend */
+.legend{display:flex;gap:12px;font-size:12px;color:var(--ink2);font-weight:400}
+.sw{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}
+#trend{position:relative;height:230px}
+#trend svg{display:block}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font-size:12px;border-radius:10px;padding:8px 10px;white-space:nowrap;display:none;z-index:5;line-height:1.7}
+/* feed */
+.feed{height:560px;overflow-y:auto;margin:0 -8px;padding:0 8px;scrollbar-width:thin}
+.fi{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;width:100%;text-align:left;padding:10px 6px;border-radius:12px}
+.fi:hover{background:var(--fill)}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:600;color:var(--ink)}
+.fh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute)}
+.fh b{color:var(--ink2);font-weight:500;max-width:9em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.fh .sn{margin-left:auto}
+.ft{font-size:14px;margin-top:2px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.fresh{animation:fresh 2.4s ease-out}
+@keyframes fresh{0%{background:rgba(223,106,114,.12)}100%{background:transparent}}
+/* small charts */
+.rows{display:flex;flex-direction:column;gap:6px}
+.row{display:grid;grid-template-columns:72px minmax(0,1fr) 44px;align-items:center;gap:8px;font-size:12px;color:var(--ink2);text-align:left;width:100%;border-radius:8px;padding:2px 4px}
+button.row:hover{background:var(--fill)}
+.row.on{background:var(--redbg);color:var(--ink);font-weight:600}
+.row .bar{height:10px;background:var(--fill);border-radius:5px;overflow:hidden;display:flex;gap:2px}
+.row .bar i{display:block;height:100%;border-radius:5px}
+.row .n{text-align:right;color:var(--ink);font-family:var(--num)}
+.stack{display:flex;height:14px;gap:2px;margin:2px 0 12px}
+.stack i{display:block;height:100%;border-radius:5px}
+.words{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:baseline}
+.words button{border-radius:999px;padding:1px 8px;line-height:1.5}
+.words button:hover,.words button.on{background:var(--fill)}
+.prog{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--ink2)}
+.prog .pb{flex:1;height:10px;background:var(--fill);border-radius:5px;overflow:hidden}
+.prog .pb i{display:block;height:100%;background:var(--grn);border-radius:5px;transition:width .4s}
+/* oath */
+.oath{margin-top:12px;background:var(--card);border-radius:16px;padding:16px 20px;display:grid;grid-template-columns:auto 1fr 1fr;gap:10px 28px;align-items:center}
+.oath h3{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.oath ul{list-style:none;display:flex;gap:8px;flex-wrap:wrap}
+.oath li{font-size:13px;border-radius:999px;padding:4px 12px}
+.oath .no li{background:var(--redbg);color:var(--redt)}
+.oath .yes li{background:var(--grnbg);color:var(--grnt)}
+.note{font-size:12px;color:var(--mute);margin-top:10px;text-align:center}
+/* toast */
+#toasts{position:fixed;top:14px;right:14px;display:flex;flex-direction:column;gap:8px;z-index:50;width:340px;max-width:calc(100vw - 28px)}
+.toast{background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 10px 30px rgba(34,34,38,.16);font-size:13px;animation:tin .25s ease-out}
+.toast .h{display:flex;align-items:center;gap:8px;font-weight:600}
+.toast .h .num{margin-left:auto;color:var(--redt);font-size:18px}
+.toast p{color:var(--ink2);margin:4px 0 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.toast.info p{margin-bottom:0}
+@keyframes tin{from{transform:translateY(-8px);opacity:0}}
+/* drawer */
+.mask{position:fixed;inset:0;background:rgba(34,34,38,.32);z-index:40;display:none}
+.mask.on{display:block}
+.drawer{position:fixed;top:0;right:0;height:100%;width:600px;max-width:100vw;background:#fff;z-index:41;transform:translateX(100%);transition:transform .25s ease;overflow-y:auto;border-radius:20px 0 0 20px}
+.drawer.on{transform:none}
+.dh{position:sticky;top:0;background:#fff;display:flex;align-items:center;gap:8px;padding:16px 22px 12px;z-index:2;font-size:15px}
+.dh .x{margin-left:auto;font-size:20px;line-height:1;color:var(--ink2);width:32px;height:32px;border-radius:50%;background:var(--fill)}
+.sp{font-size:11px;border-radius:999px;padding:1px 8px;font-weight:500;white-space:nowrap}
+.sp.pos{background:var(--grnbg);color:var(--grnt)}.sp.neu{background:var(--fill);color:var(--ink2)}.sp.neg{background:var(--redbg);color:var(--redt)}
+.db{padding:4px 22px 24px;display:flex;flex-direction:column;gap:20px}
+.sec h4{font-size:13px;color:var(--mute);font-weight:500;margin-bottom:8px}
+.orig{background:var(--fill);border-radius:14px;padding:12px 14px}
+.au{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute);margin-bottom:6px;flex-wrap:wrap}
+.au .av{width:26px;height:26px;font-size:12px}
+.au b{color:var(--ink);font-size:13px;font-weight:500}
+.orig .tx{font-size:15px;line-height:1.75}
+.rk2{display:grid;grid-template-columns:100px 1fr;gap:16px;align-items:center}
+.rk2 .big{font-family:var(--num);font-size:46px;font-weight:600;line-height:1;color:var(--redt)}
+.rk2 .big small{display:block;font-size:12px;font-weight:400;color:var(--mute);margin-top:6px;font-family:"PingFang SC",sans-serif}
+.fac{display:grid;grid-template-columns:76px 1fr 26px;gap:8px;align-items:center;font-size:12px;color:var(--ink2);margin:4px 0}
+.fac .bar{height:6px;background:var(--fill);border-radius:3px;overflow:hidden}
+.fac .bar i{display:block;height:100%;background:var(--red);border-radius:3px}
+.jg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.jg div{background:var(--fill);border-radius:12px;padding:8px 12px}
+.jg span{display:block;font-size:12px;color:var(--mute)}
+.jg b{font-size:15px;font-weight:600}
+.why{font-size:13px;color:var(--ink2);margin-top:10px;line-height:1.8}
+.ev{list-style:none;margin-top:6px;display:grid;gap:4px}
+.ev label{display:flex;gap:8px;align-items:flex-start;font-size:13px;cursor:pointer}
+.ev input{margin-top:4px;accent-color:var(--red)}
+.oathline{font-size:12px;color:var(--ink2);margin:-2px 0 10px}
+.strat{display:flex;gap:6px;flex-wrap:wrap}
+.strat button{border-radius:999px;padding:7px 14px;font-size:13px;background:var(--fill)}
+.strat button.on{background:var(--ink);color:#fff}
+.strat .rec{font-size:10px;margin-left:6px;background:var(--red);color:#fff;border-radius:999px;padding:0 6px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.ver{border-radius:14px;padding:12px;font-size:13px;line-height:1.8;display:flex;flex-direction:column;background:var(--fill)}
+.ver.good{background:#fff;box-shadow:inset 0 0 0 1.5px var(--ink)}
+.ver .vh{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--mute);margin-bottom:6px}
+.ver .vh .num{font-size:22px;font-weight:600;color:var(--grnt)}
+.ver.bad2 .vh .num{color:var(--redt)}
+.ver mark{background:var(--redbg);color:var(--redt);border-radius:4px;padding:0 2px;text-decoration:line-through;text-decoration-color:rgba(223,106,114,.55)}
+.ver .tx{flex:1}
+.chk{list-style:none;font-size:12px;margin-top:8px;display:grid;gap:2px;color:var(--ink2)}
+.chk .y::before{content:"✓ ";color:var(--grnt);font-weight:700}
+.chk .n::before{content:"✕ ";color:var(--redt);font-weight:700}
+.box{background:var(--fill);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.8;margin-top:10px}
+.box .bh{font-size:12px;color:var(--mute);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.lst{margin:4px 0 0 18px}
+.dont{font-size:12px;color:var(--redt);margin-top:8px}
+.ugc{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--hair)}
+.ugc:first-of-type{border-top:0}
+.ugc small{display:block;color:var(--mute);font-size:12px}
+.copy{font-size:12px;color:var(--redt);font-weight:500}
+.da{display:flex;gap:8px;position:sticky;bottom:0;background:#fff;padding:12px 22px 16px;box-shadow:0 -1px 0 var(--hair)}
+.da .btn{flex:1;padding:10px;background:var(--fill)}
+.da .btn.red{background:var(--brand)}
+/* modal */
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:520px;max-width:calc(100vw - 24px);background:#fff;border-radius:20px;padding:20px 22px;z-index:45;display:none;box-shadow:0 20px 50px rgba(34,34,38,.25)}
+.modal.on{display:block}
+.modal h3{font-size:17px;font-weight:600;display:flex;align-items:center;gap:8px}
+.modal p{font-size:13px;color:var(--mute);margin:4px 0 12px}
+.modal textarea{width:100%;height:110px;border:0;background:var(--fill);border-radius:14px;padding:12px;resize:vertical;font-size:14px}
+.modal .mr{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.modal .mr select{border:0;background:var(--fill);border-radius:999px;padding:7px 12px}
+.modal .mr .btn:last-child{margin-left:auto}
+.ex{font-size:12px;border-radius:999px;background:var(--fill);padding:3px 10px;color:var(--ink2)}
+@media (max-width:1180px){.hero{grid-template-columns:1fr 1fr}.pitch{grid-column:1/-1}.s4{grid-column:span 6}.s5,.s7,.s8{grid-column:span 12}.feedc{grid-row:auto!important}.kpis{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.kpi:nth-child(4){border-left:0}.oath{grid-template-columns:1fr}}
+@media (max-width:700px){.eyebrow em{display:none}.hero{grid-template-columns:1fr;padding:22px 20px}.stage{min-height:230px}.big2{font-size:68px}.pitch h1{font-size:27px!important}.wrap{padding:10px 16px 28px}.s4{grid-column:span 12}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi{border-left:0!important;padding:0 16px}.serp{grid-template-columns:1fr}.cmp{grid-template-columns:1fr}.acts{margin-left:0}.feed{height:440px}.logo small{display:none}.qi{grid-template-columns:40px minmax(0,1fr)}.qa{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<radialGradient id="pgB" cx="36%" cy="28%" r="80%"><stop offset="0" stop-color="#FFB3BC"/><stop offset=".45" stop-color="#EE6474"/><stop offset="1" stop-color="#C9475A"/></radialGradient>
+<radialGradient id="pgH" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<radialGradient id="pgC" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFC2CC"/><stop offset="1" stop-color="#FFC2CC" stop-opacity="0"/></radialGradient>
+<linearGradient id="pgL" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A3DEC6"/><stop offset="1" stop-color="#5BAE90"/></linearGradient>
+<linearGradient id="pgL2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B4E6D2"/><stop offset="1" stop-color="#6DBC9E"/></linearGradient>
+</defs></svg>
+<div class="wrap">
+  <div class="bar">
+    <div class="logo"><span id="logo"></span><b>口碑哨兵</b><small>雾屿 · 修护精华（虚构品牌，演示）</small></div>
+    <div class="clock" id="clock"><i class="dot"></i><span id="clkL">正在倾听</span><span class="num" id="clk"></span><span>仿真 ×60</span></div>
+    <div class="acts">
+      <button class="btn" id="bPause">暂停</button>
+      <button class="btn" id="bBurst">模拟一次扩散</button>
+      <button class="btn bell" id="bBell">告警<em id="bellN" hidden>0</em></button>
+      <button class="btn red" id="bPaste">研判一条评价</button>
+    </div>
+  </div>
+
+  <section class="hero" id="hero" data-z="ok">
+    <div class="pitch">
+      <div class="eyebrow"><b>口碑哨兵</b><em>Word-of-mouth Sentinel 2026</em><span>给在小红书经营的品牌</span></div>
+      <h1><span class="br">「</span>每一条差评背后，<br>都是一个具体的人<span class="br">」</span></h1>
+      <div class="formula"><span>及时听见</span><i>+</i><span>看懂原因</span><i>+</i><span>真诚回应</span><i>=</i><b class="circ">好口碑<svg viewBox="0 0 200 64" preserveAspectRatio="none" aria-hidden="true"><path d="M14 40C10 18 70 6 130 8c50 2 66 16 60 30-8 18-80 24-130 18C26 52 8 44 18 26c6-10 22-16 40-19" fill="none" stroke-width="5" stroke-linecap="round"/></svg></b></div>
+      <p>口碑哨兵帮品牌及时听见小红书上的每一种声音，看懂她为什么不满意，再用真人的方式好好回应。不删帖，不控评，只好好说话。</p>
+    </div>
+    <div class="stage">
+      <svg id="blob" viewBox="0 0 400 340" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <defs>
+          <linearGradient id="lq" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" style="stop-color:var(--l3)"/><stop offset=".13" style="stop-color:var(--l0)"/><stop offset=".24" style="stop-color:var(--l1)"/><stop offset=".36" style="stop-color:var(--l2)"/><stop offset=".46" style="stop-color:var(--l4)"/><stop offset=".53" style="stop-color:var(--l0)"/><stop offset=".62" style="stop-color:var(--l1)"/><stop offset=".74" style="stop-color:var(--l2)"/><stop offset=".86" style="stop-color:var(--l3)"/><stop offset="1" style="stop-color:var(--l0)"/>
+            <animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="26s" repeatCount="indefinite"/>
+          </linearGradient>
+          <radialGradient id="spec"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".6" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="drop" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff"/><stop offset=".35" style="stop-color:var(--l3)"/><stop offset=".75" style="stop-color:var(--l1)"/><stop offset="1" style="stop-color:var(--l2)"/></radialGradient>
+          <filter id="liq" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".006 .009" numOctaves="2" seed="11"><animate attributeName="baseFrequency" values=".006 .009;.009 .006;.006 .009" dur="20s" repeatCount="indefinite"/></feTurbulence><feDisplacementMap id="dm" in="SourceGraphic" scale="70" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <filter id="soft"><feGaussianBlur stdDeviation="8"/></filter>
+          <radialGradient id="rim" cx="48%" cy="44%" r="58%"><stop offset=".7" stop-color="#2A3550" stop-opacity="0"/><stop offset="1" stop-color="#2A3550" stop-opacity=".16"/></radialGradient>
+          <clipPath id="bc"><path d="M200 50C290 46 340 110 336 170C332 240 270 292 196 290C118 288 62 240 64 168C66 98 120 54 200 50Z"><animate attributeName="d" dur="12s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.33;.66;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1" values="M200 50C290 46 340 110 336 170C332 240 270 292 196 290C118 288 62 240 64 168C66 98 120 54 200 50Z;M214 64C304 74 354 132 330 194C306 258 248 288 180 282C106 276 56 220 70 152C84 90 140 56 214 64Z;M186 46C272 38 326 92 340 158C352 224 290 298 208 294C134 292 74 252 60 186C46 120 108 54 186 46Z;M200 50C290 46 340 110 336 170C332 240 270 292 196 290C118 288 62 240 64 168C66 98 120 54 200 50Z"/></path></clipPath>
+        </defs>
+        <ellipse cx="200" cy="318" rx="118" ry="11" fill="rgba(60,60,90,.12)" filter="url(#soft)"/>
+        <g clip-path="url(#bc)">
+          <g filter="url(#liq)"><rect x="-40" y="-40" width="480" height="420" fill="url(#lq)"/><ellipse cx="250" cy="250" rx="60" ry="16" fill="url(#spec)" opacity=".7" transform="rotate(-30 250 250)"/></g>
+          <path d="M200 50C290 46 340 110 336 170C332 240 270 292 196 290C118 288 62 240 64 168C66 98 120 54 200 50Z" fill="url(#rim)"><animate attributeName="d" dur="12s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.33;.66;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1" values="M200 50C290 46 340 110 336 170C332 240 270 292 196 290C118 288 62 240 64 168C66 98 120 54 200 50Z;M214 64C304 74 354 132 330 194C306 258 248 288 180 282C106 276 56 220 70 152C84 90 140 56 214 64Z;M186 46C272 38 326 92 340 158C352 224 290 298 208 294C134 292 74 252 60 186C46 120 108 54 186 46Z;M200 50C290 46 340 110 336 170C332 240 270 292 196 290C118 288 62 240 64 168C66 98 120 54 200 50Z"/></path>
+          <ellipse cx="140" cy="100" rx="62" ry="18" fill="url(#spec)" transform="rotate(-28 140 100)"/>
+          <ellipse cx="118" cy="92" rx="16" ry="5" fill="#fff" opacity=".9" transform="rotate(-28 118 92)"/>
+        </g>
+        <path d="M200 50C290 46 340 110 336 170C332 240 270 292 196 290C118 288 62 240 64 168C66 98 120 54 200 50Z" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="1.5"><animate attributeName="d" dur="12s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.33;.66;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1" values="M200 50C290 46 340 110 336 170C332 240 270 292 196 290C118 288 62 240 64 168C66 98 120 54 200 50Z;M214 64C304 74 354 132 330 194C306 258 248 288 180 282C106 276 56 220 70 152C84 90 140 56 214 64Z;M186 46C272 38 326 92 340 158C352 224 290 298 208 294C134 292 74 252 60 186C46 120 108 54 186 46Z;M200 50C290 46 340 110 336 170C332 240 270 292 196 290C118 288 62 240 64 168C66 98 120 54 200 50Z"/></path>
+        <g><circle cx="338" cy="70" r="20" fill="url(#drop)"/><circle cx="331" cy="62" r="5" fill="#fff" opacity=".8"/><animateTransform attributeName="transform" type="translate" values="0 0;-14 12;6 18;0 0" dur="9s" repeatCount="indefinite"/></g>
+      </svg>
+      <div class="mascot" id="mascot"></div>
+    </div>
+    <div class="read">
+      <div class="lab">口碑健康度，<span id="hRange"></span></div>
+      <div class="big2" id="hNum">--</div>
+      <div class="zrow"><span class="zp" id="hZone"></span><span id="hDelta"></span></div>
+      <div class="brief" id="brief"></div>
+      <button class="go" id="goQ">去回应 ›</button>
+    </div>
+  </section>
+
+  <div class="filters">
+    <div class="chips" id="fRange"><button data-v="24h" class="on">24 小时</button><button data-v="7d">7 天</button><button data-v="30d">30 天</button></div>
+    <select id="fCh" aria-label="渠道"><option value="-1">全部渠道</option></select>
+    <div class="chips" id="fSent"><button data-v="all" class="on">全部</button><button data-v="pos">正面</button><button data-v="neu">中性</button><button data-v="neg">负面</button></div>
+    <span id="fChips"></span>
+    <button class="link" id="fReset" hidden>清除筛选</button>
+  </div>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="g">
+    <section class="c s7" id="qSec">
+      <div class="tabs" id="qTabs"><button data-q="neg" class="on">待你回应</button><button data-q="pos">值得说声谢谢</button></div>
+      <div id="queue"></div>
+    </section>
+    <section class="c s5">
+      <h2>顾客搜「雾屿精华」时，看到的是这些 <span class="sub">搜索首屏前 10 篇</span></h2>
+      <div class="serp">
+        <div class="phone"><div class="sbar"><svg width="10" height="16" viewBox="0 0 10 16"><path d="M8 2L2 8l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sin">雾屿精华<i>×</i></span><span class="sgo">搜索</span></div><div class="stabs"><span class="on">全部</span><span>用户</span><span>商品</span><span>图片</span></div><div class="wf" id="wf"></div></div>
+        <div class="sx" id="sx"></div>
+      </div>
+    </section>
+
+    <section class="c s8">
+      <h2>声量与情感 <span class="sub" id="tSub"></span>
+        <span class="legend r"><span><i class="sw" style="background:var(--grn)"></i>正面</span><span><i class="sw" style="background:var(--neu)"></i>中性</span><span><i class="sw" style="background:var(--red)"></i>负面</span></span></h2>
+      <div id="trend"><div class="tip" id="tip"></div></div>
+    </section>
+    <section class="c s4 feedc" style="grid-row:span 2">
+      <h2>正在发生 <span class="sub">笔记、评论与私信</span></h2>
+      <div class="feed" id="feed"></div>
+    </section>
+    <section class="c s4"><h2>差评从哪来 <span class="sub">点一下可筛选</span></h2><div id="cCat"></div></section>
+    <section class="c s4"><h2>大家在聊什么</h2><div id="cWords"></div></section>
+    <section class="c s4"><h2>正面、中性、负面</h2><div id="cSent"></div></section>
+    <section class="c s4"><h2>在哪儿说的 <span class="sub">红色为负面</span></h2><div id="cCh"></div></section>
+    <section class="c s4"><h2>今天的回应</h2><div id="today"></div></section>
+  </div>
+
+  <section class="oath">
+    <h3><span id="logo2"></span>回应守则</h3>
+    <ul class="no"><li>不删帖</li><li>不控评</li><li>不刷好评</li><li>不私信施压</li></ul>
+    <ul class="yes"><li>要及时</li><li>要具体</li><li>说到要做到</li><li>好评也要回应</li></ul>
+  </section>
+  <p class="note">演示说明：数据为前端仿真流，品牌为虚构；研判与回应由规则和模板生成，正式版接入大模型与经授权的数据源。</p>
+</div>
+
+<div id="toasts"></div>
+<div class="mask" id="mask"></div>
+<aside class="drawer" id="drawer" aria-label="评价详情"></aside>
+<div class="modal" id="modal" role="dialog" aria-label="研判一条评价">
+  <h3><span id="logo3"></span>研判一条评价</h3>
+  <p>粘贴任意一条笔记或评论，哨兵会判断情感和原因，并给出回应方案。</p>
+  <textarea id="pTxt" placeholder="例如：用了一周脸上泛红刺痛，客服只让我停用，太敷衍了"></textarea>
+  <div class="mr">
+    <button class="ex" data-ex="快递五天才到，打开泵头都断了，漏了好多">试试：物流</button>
+    <button class="ex" data-ex="听说这个牌子是贴牌的，成分里有激素，大家别买">试试：疑似不实</button>
+    <button class="ex" data-ex="敏感肌用了一个月，换季没泛红，会回购">试试：好评</button>
+  </div>
+  <div class="mr"><select id="pCh" aria-label="渠道"></select><button class="btn soft" id="pCancel">取消</button><button class="btn red" id="pGo">开始研判</button></div>
+</div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+let sd=20261012;const rnd=()=>{sd=sd+0x6D2B79F5|0;let t=Math.imul(sd^sd>>>15,1|sd);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const ri=(a,b)=>a+Math.floor(rnd()*(b-a+1)),pick=a=>a[Math.floor(rnd()*a.length)];
+const M=60e3,H=60*M,D=24*H;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>n>=10000?(n/10000).toFixed(1).replace(/\.0$/,'')+'w':String(Math.round(n));
+const money=n=>n>=10000?'¥'+(n/10000).toFixed(1)+'万':'¥'+Math.round(n).toLocaleString();
+const pad=n=>String(n).padStart(2,'0');
+const TINT=['#F6E9EB','#E6EFEB','#F4EEE2','#E8EDF5','#EEEAF4','#E6F0F2'];
+
+// ===== 吉祥物：一颗会倾听的小红薯 =====
+function potato(mood){
+  const mouth=mood==='ok'?'<path d="M53 80q9 8 18 0" fill="none" stroke="#3A1520" stroke-width="3" stroke-linecap="round"/>'
+    :mood==='mid'?'<path d="M54 83q8-4 16 0" fill="none" stroke="#3A1520" stroke-width="3" stroke-linecap="round"/>'
+    :'<ellipse cx="62" cy="83" rx="4.5" ry="5.5" fill="#3A1520"/>';
+  const sweat=mood==='ok'?'':'<path d="M98 50q5 8 0 11q-5-3 0-11z" fill="#8FD0F2"/>';
+  const brow=mood==='bad'?'<path d="M45 61l9-3M78 59l-9-3" stroke="#3A1520" stroke-width="2.5" stroke-linecap="round"/>':'';
+  return`<ellipse cx="64" cy="106" rx="40" ry="4.5" fill="rgba(34,34,38,.08)"/><path d="M58 44C50 26 34 24 28 31c10 1 20 6 28 16z" fill="url(#pgL)"/><path d="M61 45c3-19 20-26 28-21-10 3-19 10-25 22z" fill="url(#pgL2)"/>
+<g transform="rotate(-8 62 72)"><path d="M8 74C20 52 42 43 62 43c22 0 42 9 52 25-9 20-30 31-52 31-24 0-43-9-54-25z" fill="url(#pgB)"/><ellipse cx="44" cy="55" rx="17" ry="7" fill="url(#pgH)" transform="rotate(-10 44 55)"/><path d="M114 68q7-1 9-8M96 88l4 3M24 64l-4-2M86 52l3-3" stroke="#B04A5A" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".5"/></g>
+<ellipse cx="50" cy="71" rx="3.8" ry="4.8" fill="#3A1520"/><ellipse cx="72" cy="69" rx="3.8" ry="4.8" fill="#3A1520"/><circle cx="51.3" cy="69.4" r="1.3" fill="#fff"/><circle cx="73.3" cy="67.4" r="1.3" fill="#fff"/>
+<ellipse cx="41" cy="80" rx="7" ry="4" fill="url(#pgC)"/><ellipse cx="82" cy="77" rx="7" ry="4" fill="url(#pgC)"/>${brow}${mouth}${sweat}`;
+}
+const logoSVG=s=>`<svg width="${Math.round(s*1.3)}" height="${s}" viewBox="2 16 124 96" aria-hidden="true">${potato('ok')}</svg>`;
+$('#logo').innerHTML=logoSVG(34);$('#logo2').innerHTML=logoSVG(26);$('#logo3').innerHTML=logoSVG(26);
+
+const CH=['图文笔记','视频笔记','评论区','直播间','店铺评价','私信'];
+const SN={pos:'正面',neu:'中性',neg:'负面'};
+const CATN={allergy:'过敏/不耐受',gap:'功效落差',logi:'物流包装',svc:'客服售后',price:'价格活动',misuse:'使用方法',fake:'疑似不实',quality:'产品质量',praise:'真实好评',ask:'咨询求问'};
+const NEGC=['allergy','gap','quality','logi','svc','misuse','price','fake'];
+const T=[
+['neg','allergy','用雾屿修护精华第三天，两颊开始泛红发烫，停了两天才消下去，敏皮姐妹慎入','第三天两颊泛红发烫',['泛红','敏感肌'],[0,2,4]],
+['neg','allergy','烂脸了！！用了一周额头爆闭口还刺痛，客服只回了一句建议停用','用了一周额头爆闭口、刺痛',['烂脸','刺痛','闭口'],[0,1,2]],
+['neg','allergy','上脸有点刺刺的，是不是酒精加多了？有没有姐妹一样','上脸有刺痛感',['刺痛'],[2,3]],
+['neg','gap','吹得那么神，空瓶了毛孔和暗沉一点没变，智商税实锤','空瓶后毛孔和暗沉没有变化',['智商税','没效果'],[0,1,4]],
+['neg','gap','都说熬夜急救，连熬三天用了第二天还是很垮，没感觉','熬夜后用了没感到改善',['没效果','熬夜'],[0,2]],
+['neg','logi','快递四天没动，到手泵头断了，精华漏了小半瓶','泵头断了、漏了小半瓶',['漏液','快递'],[4,2,5]],
+['neg','logi','外盒压得扁扁的，本来想送人的，现在送不出手','外盒被压扁',['包装','快递'],[4,5]],
+['neg','svc','问过敏怎么办，客服复制粘贴一段话就不回了','客服回复像复制粘贴',['客服'],[2,4,5]],
+['neg','svc','申请退款拖了五天，一直让我等审核，有点无语','退款审核拖了五天',['退款','客服'],[4,5]],
+['neg','price','上周刚原价买，今天直播间直接五折，老客心寒','原价买完一周后直播间五折',['降价','直播间'],[3,2]],
+['neg','misuse','和A醇叠着用脸火辣辣的，是不是这个精华有问题','和A醇叠用后脸上火辣辣的',['刺痛','A醇'],[2,0]],
+['neg','misuse','一次挤五泵糊满脸，搓泥搓到怀疑人生','一次用五泵后搓泥',['搓泥'],[2,4]],
+['neg','fake','雾屿就是三无小作坊，成分全是激素，别买！','说产品是三无、含激素',['激素','三无'],[2,0],.4],
+['neg','fake','朋友用了直接住院，大家千万别碰这个牌子','说朋友用了以后住院',['住院'],[2],.3],
+['neg','fake','内部人士说雾屿是贴牌货，和某代工厂一个料','说产品是贴牌代工',['贴牌'],[2,0],.4],
+['neg','quality','这瓶开盖有股酸味，和上一瓶完全不一样，是不是变质了','开盖有酸味、和上一瓶不一样',['变质'],[0,4,2],.6],
+['neg','quality','精华里飘着絮状物，晃了也不散，在线等一个解释','精华里有絮状物',['絮状物','变质'],[0,4],.5],
+['pos','praise','敏皮用了两个月，换季没再泛红，已经回购第三瓶','换季没再泛红',['敏感肌','回购','泛红'],[0,1,4]],
+['pos','praise','质地像水，叠面霜也不搓泥，早上赶时间很友好','叠面霜也不搓泥',['肤感','不搓泥'],[0,2,4]],
+['pos','praise','熬夜脸用完第二天确实没那么垮，空瓶记录','熬夜后第二天没那么垮',['熬夜','空瓶'],[0,1]],
+['pos','praise','瓶子颜值很高，放梳妆台上很好看','瓶子颜值高',['包装','颜值'],[0,4]],
+['pos','praise','客服很耐心，帮我排查出是叠用A醇的问题，现在分开用就好了','客服帮我排查出叠用问题',['客服','A醇'],[0,2,4]],
+['pos','praise','坚持用了28天，红血丝淡了一点点，不神但真实','28天红血丝淡了一点',['红血丝','敏感肌'],[0,1]],
+['pos','praise','第一次写测评，这瓶是真的让我脸不那么干了','脸不那么干了',['保湿'],[0,4]],
+['pos','praise','直播间买的旅行装，出差带着很方便','旅行装出差方便',['直播间','旅行装'],[3,4]],
+['pos','praise','用完不闷不黏，油皮夏天也能用','油皮夏天也不闷',['肤感','油皮'],[0,2]],
+['pos','praise','温和不刺激，是我目前唯一不过敏的精华','温和、唯一不过敏',['敏感肌','温和'],[0,1,2]],
+['neu','ask','雾屿修护精华适合油敏皮吗？和别家修护精华比怎么样','问是否适合油敏皮',['油皮','敏感肌'],[2,0],1,'油敏皮可以用，质地偏清爽、不含香精。但如果你主要想控油，它帮助不大，搭配控油产品更合适。'],
+['neu','ask','孕期可以用吗？成分表看不太懂','问孕期能不能用',['孕期','成分'],[2,5],1,'成分里没有A醇、水杨酸这类孕期常被提醒避开的成分，但每个人情况不同，建议把成分表给产检医生看一眼再决定。'],
+['neu','ask','直播间什么时候再上链接？','问直播间什么时候上链接',['直播间'],[3,2],1,'这周四晚 8 点会上，价格和日常一样，不用特意等。'],
+['neu','ask','求一个正确用法，早晚都要用吗','问正确用法',['用法'],[2,5],1,'早晚都可以，洁面后两泵按压上脸。晚上用A醇的话，精华放早上用。'],
+['neu','ask','有人知道雾屿是哪里的牌子吗','问品牌来源',['品牌'],[2],1,'我们是做修护线的国货小品牌，工厂和备案信息放在主页置顶，可以直接查。'],
+['neu','ask','和面霜一起买划算还是单买划算','问组合怎么买划算',['价格'],[3,2,5],1,'如果本来就缺面霜，组合便宜一些；只想试精华的话，单买旅行装最划算。']
+].map(a=>({s:a[0],c:a[1],t:a[2],d:a[3],k:a[4],ch:a[5],w:a[6]||1,r:a[7]}));
+
+const SEV={'烂脸':30,'住院':30,'激素':28,'变质':26,'絮状物':24,'过敏':22,'三无':20,'刺痛':18,'闭口':16,'泛红':16,'贴牌':14,'漏液':12,'智商税':12,'退款':10,'取消购买':12,'批次':10,'客服':8,'降价':8,'没效果':8,'品牌回应':8,'搓泥':6,'包装':6,'快递':6};
+const CYC=[.9,.6,.35,.2,.15,.15,.25,.5,.7,.8,.85,.9,1.1,1,.85,.85,.9,1,1.1,1.3,1.5,1.7,1.8,1.4];
+const N1=['小鱼','橘子','阿柚','momo','Lily','糖糖','阿雪','大米','芝士','兔兔','Yuki','一颗桃','栗子','北北','安安','木木'];
+const N2=['的护肤日记','今天早睡','不吃香菜','在上海','酱','同学','_','爱囤货','是敏皮','的空瓶记','',''];
+
+let id=0;const items=[];const START=Math.floor(Date.now()/1000)*1000;let now=START;
+
+function riskOf(it){
+  if(it.s!=='neg'){it.risk=0;it.rf=[0,0,0,0,0];return}
+  const sev=Math.min(30,Math.max(5,...it.k.map(k=>SEV[k]||5)));
+  const fan=Math.min(20,Math.log10(it.fans+1)*4.4),eng=Math.min(20,Math.log10(it.likes+it.cmts*3+1)*5);
+  const top=it.top?15:0,echo=Math.min(15,it.echo*2.5);
+  it.rf=[sev,fan,eng,top,echo];it.risk=Math.min(99,Math.round(sev+fan+eng+top+echo));
+}
+function mk(tp,t,o={}){
+  const ch=o.ch??pick(tp.ch),note=ch<2;
+  const fans=o.fans??Math.round(note?10**(1.5+rnd()**1.8*3.2):10**(.3+rnd()*2.2));
+  const likes=o.likes??(note?Math.round(fans*(.03+rnd()*.25))+ri(0,30):ri(0,40));
+  const pre=o.raw||tp.s==='neu'?'':pick(['','','','说实话，','真的，','姐妹们，','记录一下：']);
+  const it={id:++id,s:tp.s,c:tp.c,t:pre+tp.t,d:tp.d,k:tp.k,r:tp.r,time:t,ch,fans,likes,cmts:Math.round(likes*(.05+rnd()*.15)),
+    au:o.au||pick(N1)+pick(N2)+(rnd()<.3?ri(1,99):''),top:o.top??(note&&fans>2000&&rnd()<(tp.s==='neg'?.15:.35)),echo:o.echo??(tp.s==='neg'&&note?(rnd()<.1?ri(4,8):ri(0,3)):0),status:'new'};
+  if(it.s==='neg'&&o.status==null){const age=(START-t)/D,r=rnd();
+    it.status=age>3?(r<(it.c==='fake'?.6:.85)?'done':r<.93?'doing':'new'):age>.25?(r<.35?'done':r<.55?'doing':'new'):'new';}
+  if(o.status)it.status=o.status;
+  if(it.status==='done')it.rt=(rnd()**2.2*24+.4)*H;
+  riskOf(it);return it;
+}
+function genOne(t,boost={},negMul=1){
+  const r=rnd(),pn=.17*negMul,s=r<pn?'neg':r<pn+.22?'neu':'pos';
+  const pool=T.filter(x=>x.s===s);let tot=0;const ws=pool.map(x=>{const w=x.w*(boost[x.c]||1);tot+=w;return w});
+  let q=rnd()*tot,i=0;while(q>ws[i]){q-=ws[i];i++}
+  return mk(pool[i],t);
+}
+function pois(l){const L=Math.exp(-l);let k=0,p=1;do{k++;p*=rnd()}while(p>L);return k-1}
+const VIEW=[.18,.12,.09,.07,.06,.05,.04,.035,.03,.025];
+var slots=[],rankOf={};
+function calcSerp(){
+  slots=items.filter(x=>x.top&&x.time<=now&&x.time>now-30*D).map(x=>[x,x.likes/(1+(now-x.time)/D/4)]).sort((a,b)=>b[1]-a[1]).slice(0,10).map(a=>a[0]);
+  rankOf={};slots.forEach((x,i)=>rankOf[x.id]=i+1);
+}
+const slotDebt=(x,i)=>x.s==='neg'?60000*VIEW[i]*(x.status==='done'?.06:.25)*.08*259:0;
+for(let h=60*24;h>0;h--){
+  const t=START-h*H,da=h/24;let rate=17*CYC[new Date(t).getHours()],boost={},nm=1;
+  if(da>7&&da<10.5){boost={logi:7};nm=1.6}
+  if(da>19&&da<21)rate*=1.8;
+  const n=pois(rate);for(let i=0;i<n;i++)items.push(genOne(t+rnd()*H,boost,nm));
+}
+items.push(mk(T[5],START-46*H,{ch:0,raw:1,fans:8200,likes:6400,top:true,echo:5,status:'done',au:'北北的空瓶记'}),Object.assign(mk(T[3],START-19*H,{ch:0,raw:1,fans:9800,likes:6800,top:true,echo:4,status:'new',au:'一颗桃在上海'}),{keep:1}));
+items.sort((a,b)=>a.time-b.time);
+{calcSerp();slots.forEach(x=>{if(x.s==='neg'&&x.status!=='done'&&!x.keep){x.status='done';x.rt=x.rt||3*H}})}
+
+// ===== 状态 =====
+const st={range:'24h',ch:-1,sent:'all',kw:null,cat:null,paused:false,open:null,strat:null,q:'neg'};
+const RG={'24h':{ms:D,n:24,size:H,lab:'近 24 小时'},'7d':{ms:7*D,n:28,size:6*H,lab:'近 7 天'},'30d':{ms:30*D,n:30,size:D,lab:'近 30 天'}};
+const dimOK=it=>(st.ch<0||it.ch===st.ch)&&(!st.kw||it.k.includes(st.kw)||it.t.includes(st.kw))&&(!st.cat||it.c===st.cat);
+const sentOK=it=>st.sent==='all'||it.s===st.sent;
+const ago=t=>{const d=now-t;return d<M?'刚刚':d<H?Math.floor(d/M)+' 分钟前':d<D?Math.floor(d/H)+' 小时前':Math.floor(d/D)+' 天前'};
+const set=(el,h)=>{if(el._h!==h){el.innerHTML=h;el._h=h}};
+const avc=s=>TINT[[...s].reduce((a,c)=>a+c.charCodeAt(0),0)%TINT.length];
+
+function health(arr){
+  const neg=arr.filter(x=>x.s==='neg');if(!arr.length)return 100;
+  const share=neg.length/arr.length,open=neg.filter(x=>x.status!=='done'&&x.risk>=60).length,
+    topOpen=slots.reduce((t,x,i)=>t+(x.s==='neg'&&x.status!=='done'?.5+VIEW[i]/.18:0),0),R=neg.length?neg.filter(x=>x.status==='done').length/neg.length:1;
+  return Math.max(0,Math.min(100,Math.round(100-share*80-Math.min(10,open*2)-Math.min(24,topOpen*7)+R*15)));
+}
+const zone=h=>h<45?['告急','bad']:h<65?['承压','mid']:h<80?['平稳','ok']:['健康','ok'];
+let lastZ=null,shownH=null;
+function paintHero(h){
+  const z=zone(h),k=z[1];
+  if(k!==lastZ){$('#hero').dataset.z=k;$('#dm').setAttribute('scale',k==='ok'?60:k==='mid'?105:150);
+    $('#mascot').innerHTML=`<svg viewBox="2 16 124 96" width="100%">${potato(k)}</svg>`;
+    if(lastZ){$('#mascot').classList.remove('pop');void $('#mascot').offsetWidth;$('#mascot').classList.add('pop')}lastZ=k}
+  if(shownH!==h){const from=shownH??h,t0=performance.now();shownH=h;
+    const step=t=>{const p=Math.min(1,(t-t0)/600);$('#hNum').textContent=Math.round(from+(h-from)*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)}
+}
+if(matchMedia('(prefers-reduced-motion: reduce)').matches)$('#blob').pauseAnimations();
+function render(){
+  calcSerp();
+  const R=RG[st.range],t0=now-R.ms,p0=t0-R.ms;
+  const all=[],cur=[],prev=[];
+  for(const it of items){if(it.time>now)continue;
+    if(it.time>=t0){if(dimOK(it)){all.push(it);if(sentOK(it))cur.push(it)}}
+    else if(it.time>=p0&&dimOK(it))prev.push(it)}
+  const neg=all.filter(x=>x.s==='neg'),pneg=prev.filter(x=>x.s==='neg');
+  // 健康度
+  const h=health(all),ph=health(prev),z=zone(h);
+  paintHero(h);
+  set($('#hZone'),z[0]);
+  set($('#hRange'),R.lab);set($('#hDelta'),`较上一周期 ${h-ph>=0?'+':''}${h-ph}`);
+  const byCat={};neg.forEach(x=>byCat[x.c]=(byCat[x.c]||0)+1);
+  const topCat=Object.entries(byCat).sort((a,b)=>b[1]-a[1])[0];
+  const openSlots=slots.map((x,i)=>[x,i]).filter(([x])=>x.s==='neg'&&x.status!=='done');
+  const worst=neg.filter(x=>x.status!=='done').sort((a,b)=>b.risk-a.risk)[0];
+  const cl=cluster();
+  let sum=neg.length?`${R.lab}有 <b>${neg.length}</b> 条负面，最多和「<b>${CATN[topCat[0]]}</b>」有关`:`${R.lab}没有负面声音`;
+  if(openSlots.length)sum+=`；顾客搜你时，第 <b>${openSlots.map(a=>a[1]+1).join('、')}</b> 篇是还没回应的差评`;
+  if(cl)sum+=`；「<b>${esc(cl.kw)}</b>」的讨论正在变多`;
+  sum+=worst?`。先去回应风险 <b>${worst.risk}</b> 的那条吧。`:'。';
+  set($('#brief'),sum);
+  // KPI
+  const share=all.length?neg.length/all.length:0,pshare=prev.length?pneg.length/prev.length:0;
+  const hi=neg.filter(x=>x.risk>=60&&x.status!=='done').length;
+  const rr=neg.length?neg.filter(x=>x.status==='done').length/neg.length:1;
+  const rts=neg.filter(x=>x.status==='done'&&x.rt).map(x=>x.rt).sort((a,b)=>a-b);const med=rts.length?rts[Math.floor(rts.length/2)]/H:0;
+  const vol=all.length,pvol=prev.length,dp=(share-pshare)*100;
+  set($('#kpis'),[
+    ['总声量',`${fmt(vol)}<small>条</small>`,pvol?`${vol>=pvol?'▲':'▼'} ${Math.abs((vol-pvol)/pvol*100).toFixed(0)}%，较上一周期`:'—'],
+    ['负面占比',`${(share*100).toFixed(1)}<small>%</small>`,`<span class="${dp>0?'bad':'good'}">${dp>=0?'▲':'▼'} ${Math.abs(dp).toFixed(1)}pp</span>，较上一周期`],
+    ['待回应的高风险',`<span class="${hi?'bad':''}">${hi}</span><small>条</small>`,'风险 ≥ 60 且还没回应'],
+    ['负面回应率',`${Math.round(rr*100)}<small>%</small>`,'已回应 / 全部负面'],
+    ['回应用时中位数',`${med?med.toFixed(1):'—'}<small>小时</small>`,'从发布到品牌回应']
+  ].map(([l,v,d])=>`<div class="kpi"><div class="l">${l}</div><div class="v num">${v}</div><div class="d">${d}</div></div>`).join(''));
+  renderQueue(all,neg,cl);
+  renderSerp();
+  drawTrend(cur,R);
+  // 情感构成
+  const cnt={pos:0,neu:0,neg:0};all.forEach(x=>cnt[x.s]++);const n=all.length||1;const col={pos:'var(--grn)',neu:'var(--neu)',neg:'var(--red)'};
+  set($('#cSent'),`<div class="stack">${['pos','neu','neg'].map(s=>`<i style="width:${cnt[s]/n*100}%;background:${col[s]}"></i>`).join('')}</div><div class="rows">${['pos','neu','neg'].map(s=>`<button class="row ${st.sent===s?'on':''}" data-sent="${s}"><span><i class="sw" style="background:${col[s]}"></i>${SN[s]}</span><span class="num" style="color:var(--ink)">${cnt[s]} 条</span><span class="n">${(cnt[s]/n*100).toFixed(1)}%</span></button>`).join('')}</div>`);
+  // 渠道
+  const chc=CH.map(()=>[0,0]);cur.forEach(x=>{chc[x.ch][0]++;if(x.s==='neg')chc[x.ch][1]++});const chm=Math.max(1,...chc.map(c=>c[0]));
+  set($('#cCh'),`<div class="rows">${CH.map((c,i)=>`<button class="row ${st.ch===i?'on':''}" data-ch="${i}"><span>${c}</span><span class="bar"><i style="width:${(chc[i][0]-chc[i][1])/chm*100}%;background:#C3C7CD"></i><i style="width:${chc[i][1]/chm*100}%;background:var(--red)"></i></span><span class="n">${chc[i][0]}</span></button>`).join('')}</div>`);
+  // 归因
+  const cc={};cur.filter(x=>x.s==='neg').forEach(x=>cc[x.c]=(cc[x.c]||0)+1);const cm=Math.max(1,...Object.values(cc));
+  set($('#cCat'),Object.keys(cc).length?`<div class="rows">${NEGC.filter(c=>cc[c]).sort((a,b)=>cc[b]-cc[a]).map(c=>`<button class="row ${st.cat===c?'on':''}" data-cat="${c}"><span>${CATN[c]}</span><span class="bar"><i style="width:${cc[c]/cm*100}%;background:var(--red)"></i></span><span class="n">${cc[c]}</span></button>`).join('')}</div>`:'<div class="empty">当前筛选下没有负面内容</div>');
+  // 热词
+  const wc={};cur.forEach(x=>x.k.forEach(k=>{wc[k]=wc[k]||{n:0,neg:0};wc[k].n++;if(x.s==='neg')wc[k].neg++}));
+  const ws=Object.entries(wc).sort((a,b)=>b[1].n-a[1].n).slice(0,18);const wm=ws.length?ws[0][1].n:1;
+  set($('#cWords'),ws.length?`<div class="words">${ws.map(([k,v])=>`<button data-kw="${esc(k)}" class="${st.kw===k?'on':''}" style="font-size:${12+Math.round(v.n/wm*14)}px;color:${v.neg/v.n>.5?'var(--redt)':v.neg/v.n>.2?'var(--ambt)':'var(--ink)'};font-weight:${v.n/wm>.5?600:400}" title="${v.n} 次提及，负面 ${v.neg} 次">${esc(k)}</button>`).join('')}</div><p class="hint" style="margin-top:12px">字越大聊得越多。红色多为负面，橙色负面偏多。</p>`:'<div class="empty">暂无</div>');
+  // 今天的回应
+  const day=items.filter(x=>x.s==='neg'&&x.time>now-D&&x.time<=now&&x.risk>=40);const dd=day.filter(x=>x.status==='done');
+  const saved=slots.reduce((s,x,i)=>s+(x.s==='neg'&&x.status==='done'?60000*VIEW[i]*(.25-.06)*.08*259:0),0);
+  set($('#today'),`<div class="rows" style="gap:12px"><div class="prog">近 24 小时值得回应的负面 <b class="num" style="color:var(--ink)">${day.length}</b> 条，已回应 <b class="num" style="color:var(--grnt)">${dd.length}</b> 条</div><div class="prog"><span class="pb"><i style="width:${day.length?dd.length/day.length*100:100}%"></i></span><span class="num">${day.length?Math.round(dd.length/day.length*100):100}%</span></div><div class="prog">首屏差评回应后，每月少流失约 <b class="num" style="color:var(--grnt)">${money(saved)}</b></div><p class="hint">真诚回应后，看到差评的人里放弃购买的比例从 25% 降到 6%（演示假设）。</p></div>`);
+  // 筛选
+  const chips=[];if(st.kw)chips.push(['kw',`聊到：${st.kw}`]);if(st.cat)chips.push(['cat',`原因：${CATN[st.cat]}`]);
+  set($('#fChips'),chips.map(([k,l])=>`<span class="tagc">${esc(l)}<button data-clr="${k}" aria-label="移除">×</button></span> `).join(''));
+  $('#fReset').hidden=!(st.kw||st.cat||st.ch>=0||st.sent!=='all');
+  $('#fCh').value=st.ch;
+  document.querySelectorAll('#fSent button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.sent));
+  document.querySelectorAll('#fRange button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.range));
+  const d=new Date(now);$('#clk').textContent=`${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function renderQueue(all,neg,cl){
+  document.querySelectorAll('#qTabs button').forEach(b=>b.classList.toggle('on',b.dataset.q===st.q));
+  const wl=neg.filter(x=>x.status!=='done'&&x.risk>=40).sort((a,b)=>b.risk-a.risk);
+  const pos=all.filter(x=>x.s==='pos'&&x.ch<2).sort((a,b)=>b.likes-a.likes).slice(0,7);
+  $('#qTabs').children[0].textContent=`待你回应 ${wl.length}`;
+  if(st.q==='neg'){
+    set($('#queue'),(cl?`<button class="cluster" data-kw="${esc(cl.kw)}"><span>「<b>${esc(cl.kw)}</b>」的讨论正在变多：近 3 小时 ${cl.n} 条负面${cl.top?'，其中 1 篇在搜索首屏':''}</span><span style="margin-left:auto;color:var(--ink2)">看看 ›</span></button>`:'')+
+    (wl.length?wl.slice(0,7).map(x=>`<button class="qi${x.fresh?' fresh':''}" data-id="${x.id}"><span class="rs ${x.risk>=75?'r3':x.risk>=60?'r2':'r1'}">${x.risk}</span><span style="min-width:0"><div class="qt">${esc(x.t)}</div><div class="meta"><span>${CATN[x.c]}</span><span>${CH[x.ch]}</span><span>粉丝 ${fmt(x.fans)}</span><span>${ago(x.time)}</span>${x.echo?`<span>${x.echo} 人附和</span>`:''}</div></span><span class="qa">${rankOf[x.id]?`<span class="pill top">首屏第 ${rankOf[x.id]} 篇</span>`:`<span class="pill st-${x.status}">${x.status==='new'?'待回应':'处理中'}</span>`}<span class="cta">去回应 ›</span></span></button>`).join(''):'<div class="empty">该回应的都回应了。去「值得说声谢谢」看看吧。</div>'));
+  }else{
+    set($('#queue'),`<p class="hint">真实、具体的好评，是同肤质的人最信任的声音。回她一句谢谢，或邀请她授权加热。</p>`+(pos.length?pos.map(x=>`<button class="qi" data-id="${x.id}"><span class="rs" style="background:var(--grnbg);color:var(--grnt);font-size:12px">${fmt(x.likes)}</span><span style="min-width:0"><div class="qt">${esc(x.t)}</div><div class="meta"><span>${esc(x.au)}</span><span>${CH[x.ch]}</span><span>${ago(x.time)}</span></div></span><span class="qa">${x.inv?'<span class="pill st-done">已邀请授权</span>':'<span class="pill">还没回复</span>'}<span class="cta" style="color:var(--grnt)">说声谢谢 ›</span></span></button>`).join(''):'<div class="empty">当前筛选下暂无好评笔记</div>'));
+  }
+}
+
+function renderSerp(){
+  const cols=[[],[]],hs=[0,0];
+  slots.forEach((x,i)=>{const chh=[64,84,100][x.id%3];const c=hs[0]<=hs[1]?0:1;hs[c]+=chh+70;
+    const cover=x.t.replace(/^(说实话|真的|姐妹们|记录一下)[，：]/,'').split(/[，！!。？?｜]/)[0].slice(0,12);
+    const flag=x.s==='neg'?`<span class="flag${x.status==='done'?' ok':''}">${i+1} · ${x.status==='done'?'差评已回应':'差评未回应'}</span>`:'';
+    const dt=now-x.time<D?ago(x.time):`${pad(new Date(x.time).getMonth()+1)}-${pad(new Date(x.time).getDate())}`;
+    cols[c].push(`<button class="nc" data-id="${x.id}"><div class="cv" style="min-height:${chh}px;background:${x.s==='neg'?'#F6E1E3':TINT[x.id%TINT.length]}">${flag||`<span class="rk">${i+1}</span>`}<span><span class="q">「</span>${esc(cover)}<span class="q">」</span></span></div><div class="nt">${esc(x.t)}</div><div class="nm"><span class="a" style="background:${avc(x.au)}">${esc([...x.au][0])}</span><span class="u">${esc(x.au)}<br>${dt}</span><span class="l"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9-9.2C1.6 7.4 3.8 4 7.2 4c2 0 3.6 1.2 4.8 2.8C13.2 5.2 14.8 4 16.8 4c3.4 0 5.6 3.4 4.2 6.8C19 15.6 12 20 12 20z" fill="none" stroke="currentColor" stroke-width="2"/></svg>${fmt(x.likes)}</span></div></button>`)});
+  set($('#wf'),cols.map(c=>`<div class="col">${c.join('')}</div>`).join(''));
+  const nNeg=slots.filter(x=>x.s==='neg').length,nOpen=slots.filter(x=>x.s==='neg'&&x.status!=='done').length;
+  const debt=slots.reduce((s,x,i)=>s+slotDebt(x,i),0),how=$('#howbox')&&$('#howbox').classList.contains('on');
+  set($('#sx'),`<div class="lab">差评占了几个位置</div><div class="big num" style="color:${nNeg?'var(--redt)':'inherit'}">${nNeg}<small>/ 10 篇</small></div><p>${nOpen?`其中 ${nOpen} 篇还没回应。越靠前，被看到的次数越多。`:'首屏里的差评都已经回应了。'}</p><div class="lab">口碑负债</div><div class="big num" style="color:${debt>20000?'var(--redt)':'inherit'}">${money(debt)}<small>/月</small></div><p>顾客因为看到首屏差评而放弃购买，估算每月流失的销售额。</p><button class="link" id="howBtn" style="margin-top:6px">怎么算的</button><div class="howbox${how?' on':''}" id="howbox">口碑负债 = Σ 首屏每篇差评的被看到次数 × 劝退率 × 搜索后购买率 8% × 客单价 ¥259。被看到次数 = 品牌词月搜索 6 万次 × 该位置的查看率（第 1 篇 18%，依次递减）。没回应的差评劝退率按 25%，真诚回应后按 6%。这是演示用的估算模型，正式版用品牌一方数据校准。</div>`);
+}
+
+function cluster(){
+  const c={};let best=null;
+  items.forEach(x=>{if(x.s!=='neg'||x.time<now-3*H||x.time>now||!(st.ch<0||x.ch===st.ch))return;x.k.forEach(k=>{if(['敏感肌','客服'].includes(k))return;c[k]=c[k]||{n:0,top:false};c[k].n++;if(rankOf[x.id])c[k].top=true})});
+  for(const[k,v]of Object.entries(c))if(v.n>=4&&(!best||v.n>best.n))best={kw:k,...v};
+  return best;
+}
+
+let tb=[];
+function drawTrend(cur,R){
+  const el=$('#trend'),W=el.clientWidth||800,Hh=230,pl=34,pr=6,pt=10,pb=24,pw=W-pl-pr,ph=Hh-pt-pb;
+  const b0=now-R.n*R.size;tb=Array.from({length:R.n},(_,i)=>({t:b0+i*R.size,pos:0,neu:0,neg:0}));
+  cur.forEach(x=>{const i=Math.floor((x.time-b0)/R.size);if(i>=0&&i<R.n)tb[i][x.s]++});
+  const mx=Math.max(4,...tb.map(b=>b.pos+b.neu+b.neg));let step=Math.pow(10,Math.floor(Math.log10(mx)));if(mx/step<=2)step/=2;const top=Math.ceil(mx/step)*step;
+  const y=v=>pt+ph-v/top*ph,bw=pw/R.n,w=Math.max(3,Math.min(24,bw*.6));
+  const COL={neg:'#DF6A72',neu:'#D3D6DB',pos:'#5A8BC9'};
+  let s=`<svg width="${W}" height="${Hh}">`;
+  [0,.5,1].forEach(f=>{const yy=y(top*f);s+=`<line x1="${pl}" x2="${W-pr}" y1="${yy}" y2="${yy}" stroke="rgba(48,48,52,.07)"/><text x="${pl-8}" y="${yy+4}" font-size="11" fill="rgba(34,34,38,.46)" text-anchor="end">${Math.round(top*f)}</text>`});
+  const every=Math.ceil(R.n/Math.max(3,Math.min(8,Math.floor(pw/80))));
+  tb.forEach((b,i)=>{const x=pl+i*bw+(bw-w)/2;let acc=0;const tot=b.pos+b.neu+b.neg;let seen=0;
+    ['neg','neu','pos'].forEach(k=>{if(!b[k])return;seen+=b[k];const hh=b[k]/top*ph;const yy=y(acc)-hh;
+      s+=`<rect x="${x.toFixed(1)}" y="${(yy+1).toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(1,hh-2).toFixed(1)}" rx="${seen===tot?4:1.5}" fill="${COL[k]}"/>`;acc+=b[k]});
+    if(i%every===0||i===R.n-1){const d=new Date(b.t);const lab=R.size===H?`${pad(d.getHours())}:00`:R.size===D?`${d.getMonth()+1}/${d.getDate()}`:`${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}时`;s+=`<text x="${(pl+i*bw+bw/2).toFixed(1)}" y="${Hh-6}" font-size="11" fill="rgba(34,34,38,.46)" text-anchor="middle">${i===R.n-1?'现在':lab}</text>`}
+    s+=`<rect data-i="${i}" x="${(pl+i*bw).toFixed(1)}" y="${pt}" width="${bw.toFixed(1)}" height="${ph}" fill="transparent"/>`});
+  s+=`</svg>`;
+  const old=el.querySelector('svg');if(old){if(old._s===s)return;old.remove()}
+  el.insertAdjacentHTML('afterbegin',s);el.querySelector('svg')._s=s;
+  set($('#tSub'),`${R.lab}，每根柱子 ${R.size===H?'1 小时':R.size===D?'1 天':'6 小时'}`);
+}
+$('#trend').addEventListener('mousemove',e=>{
+  const i=e.target.dataset&&e.target.dataset.i,tip=$('#tip');if(i==null){tip.style.display='none';return}
+  const b=tb[i],tot=b.pos+b.neu+b.neg,R=RG[st.range],d=new Date(b.t),e2=new Date(b.t+R.size);
+  const f=x=>`${x.getMonth()+1}/${x.getDate()} ${pad(x.getHours())}:00`;
+  tip.innerHTML=`<b>${f(d)} – ${f(e2)}</b><br>声量 ${tot} 条<br><i class="sw" style="background:#5A8BC9"></i>正面 ${b.pos}　<i class="sw" style="background:#D3D6DB"></i>中性 ${b.neu}　<i class="sw" style="background:#DF6A72"></i>负面 ${b.neg}<br>负面占比 ${tot?(b.neg/tot*100).toFixed(1):0}%`;
+  tip.style.display='block';const r=$('#trend').getBoundingClientRect();let x=e.clientX-r.left+12;if(x+tip.offsetWidth>r.width)x=e.clientX-r.left-tip.offsetWidth-12;tip.style.left=x+'px';tip.style.top='6px';
+});
+$('#trend').addEventListener('mouseleave',()=>$('#tip').style.display='none');
+
+// ===== 实时流 =====
+function feedItem(x,fresh){return`<button class="fi${fresh?' fresh':''}" data-id="${x.id}"><span class="av" style="background:${avc(x.au)}">${esc([...x.au][0])}</span><span style="min-width:0"><div class="fh"><b>${esc(x.au)}</b><span>${CH[x.ch]}</span><span class="ago" data-t="${x.time}">${ago(x.time)}</span><span class="sn"><span class="sp ${x.s}">${SN[x.s]}${x.s==='neg'?' '+x.risk:''}</span></span></div><div class="ft">${esc(x.t)}</div></span></button>`}
+function renderFeed(){
+  const arr=[];for(let i=items.length-1;i>=0&&arr.length<50;i--){const x=items[i];if(x.time<=now&&dimOK(x)&&sentOK(x))arr.push(x)}
+  $('#feed').innerHTML=arr.map(x=>feedItem(x)).join('')||'<div class="empty">当前筛选下暂无声音</div>';
+}
+function pushFeed(x){
+  if(!(dimOK(x)&&sentOK(x)))return;const f=$('#feed');
+  if(f.querySelector('.empty'))f.innerHTML='';
+  f.insertAdjacentHTML('afterbegin',feedItem(x,true));while(f.children.length>50)f.lastChild.remove();
+}
+setInterval(()=>document.querySelectorAll('.ago').forEach(e=>e.textContent=ago(+e.dataset.t)),5000);
+
+// ===== 告警 =====
+let bell=0;
+function toast(html,cls=''){const t=document.createElement('div');t.className='toast '+cls;t.innerHTML=html;$('#toasts').prepend(t);while($('#toasts').children.length>3)$('#toasts').lastChild.remove();setTimeout(()=>t.remove(),cls?3500:9000);return t}
+function alarm(x,title){
+  const kw=x.k.slice().sort((a,b)=>(SEV[b]||0)-(SEV[a]||0))[0];
+  toast(`<div class="h">${logoSVG(22)}${title||`有人提到「${esc(kw)}」`}<span class="num">${x.risk}</span></div><p>${esc(x.t)}</p><div style="display:flex;gap:8px;font-size:12px;color:var(--mute);align-items:center"><span>${CH[x.ch]}，粉丝 ${fmt(x.fans)}</span><button class="btn red" style="margin-left:auto;padding:5px 12px" data-id="${x.id}">去看看</button></div>`);
+  bell++;$('#bellN').hidden=false;$('#bellN').textContent=bell;
+}
+function emit(x){
+  items.push(x);x.fresh=true;setTimeout(()=>x.fresh=false,2500);pushFeed(x);
+  if(!x.custom&&x.s==='neg'&&(x.risk>=60||x.k.some(k=>(SEV[k]||0)>=22)))alarm(x);
+}
+
+// ===== 扩散剧本 =====
+const SEED={s:'neg',c:'allergy',t:'实测｜敏感肌用雾屿修护精华第3天，两颊泛红还爆了一片闭口，视频里有前后对比。不是黑，就是想提醒和我一样的皮',d:'敏感肌用到第 3 天两颊泛红、爆了一片闭口',k:['泛红','闭口','敏感肌'],ch:[1]};
+const ECHO=[['neg','allergy','我也是！第二天就泛红了，还以为是换季',['泛红']],['neg','allergy','同敏皮，用了一周额头爆闭口',['闭口','敏感肌']],['neg','allergy','还好刷到了，购物车里那瓶先删了',['取消购买','泛红']],['neg','quality','求问是哪个批次？我刚囤了两瓶',['批次','泛红']],['neu','ask','我用着还好，可能真的看肤质',['肤质']],['neg','svc','品牌能不能出来说句话',['品牌回应','泛红']],['neg','allergy','我闺蜜也是泛红，停了才好',['泛红']]];
+const AFTER=[['pos','praise','品牌这条回复挺实在的，不是复制粘贴那种',['真诚回应']],['pos','praise','先退款再查原因，这个处理方式路转粉一点点',['真诚回应']]];
+let story=null;
+function startBurst(){
+  if(story&&!story.end)return;
+  const s=mk({...SEED,w:1},now,{raw:1,fans:23400,likes:1800,top:true,echo:0,status:'new',au:'是阿柚不是阿油'});
+  story={s,step:0,next:now+3*M,end:false,after:0,warned:false};emit(s);
+}
+function storyTick(){
+  if(!story)return;const s=story.s;
+  if(s.status==='done'){
+    if(story.after<AFTER.length&&now>=story.next){const a=AFTER[story.after++];emit(mk({s:a[0],c:a[1],t:a[2],d:a[2],k:a[3],ch:[2]},now,{ch:2,raw:1}));story.next=now+ri(3,5)*M}
+    s.likes+=ri(5,20);if(story.after>=AFTER.length)story.end=true;return}
+  s.likes+=ri(120,260);s.cmts=Math.round(s.likes*.12);
+  if(story.step<ECHO.length&&now>=story.next){const e=ECHO[story.step++];emit(mk({s:e[0],c:e[1],t:e[2],d:e[2],k:e[3],ch:[2]},now,{ch:2,raw:1,fans:ri(20,600),likes:ri(0,60),status:'new'}));if(e[0]==='neg')s.echo++;story.next=now+ri(3,5)*M}
+  riskOf(s);if(s.risk>=85&&!story.warned){story.warned=true;alarm(s,'这篇笔记正在扩散')}
+}
+
+// ===== 时钟 =====
+function tick(){
+  now+=M;
+  const l=17*CYC[new Date(now).getHours()]/60;let k=pois(l);while(k--)emit(genOne(now-ri(0,50)*1000));
+  storyTick();render();
+}
+let timer=setInterval(tick,1000);
+setTimeout(()=>{if(!story)startBurst()},18000);
+
+// ===== 研判知识 =====
+const PR=['亲，','亲～','非常抱歉给您带来不好的体验','给您带来不便','深表歉意','高度重视','严格检测','严格质检','安全有保障','安全的哦','个人肤质原因','使用方法不当','私信小助手','联系客服','敬请谅解','敬请关注','感谢您的反馈与支持','感谢您的理解与支持','感谢您一直以来的支持','一直致力于','效果因人而异','请耐心等待','以页面为准','纯属造谣','依法追究','第一时间','无法控制','请放心使用'];
+const K={
+allergy:{tr:'需核实',conf:74,why:'描述了具体的时间和症状，大概率是真实体验；更可能是个体不耐受，而不是批次问题。“烂脸”“刺痛”这类词传播很快，不要在评论区争辩“成分很安全”。',ev:['订单尾号或瓶底批次号','使用频次，是否叠加酸类或A醇','同批次近 7 天有无相似反馈','该批次留样与过敏原检测报告'],rec:'service',
+ pr:'亲，非常抱歉给您带来不好的体验！我们高度重视每一位顾客的反馈，产品均经过严格检测、安全有保障，可能是个人肤质原因，烦请私信小助手为您处理，敬请谅解～',
+ real:x=>`看到你说「${x.d}」，先停用，用清水洗脸，这几天别叠加其他功效产品。想请你告诉我们订单尾号或瓶底批次号，今天下班前护肤顾问会联系你；不管查下来是不是产品原因，退款都先给你办。查的结果我们会回到这条下面说清楚。`,
+ dm:x=>`你好，我是雾屿的护肤顾问。看到你提到${x.d}，现在皮肤还难受吗？方便的话发一张现在的照片（可以打码），再告诉我瓶底批次号和最近叠用的产品，我帮你一起排查。退款已经给你申请了，不需要寄回瓶子。`,
+ fix:['先退款，不要求寄回','护肤顾问 24 小时内回访','批次号进入质检排查'],tk:x=>`【用户反馈·过敏】${x.d}。请质量部核对该批次投诉率，评估详情页是否补充“敏感肌建议先在耳后试用”。`,rel:['敏感肌','温和','泛红','红血丝']},
+gap:{tr:'可信',conf:81,why:'主观的效果落差，不是质量问题。她在意的是“被说服了却没得到”，回应重点是承认宣传说满了，而不是解释原理。',ev:['她的用量和使用周期','近期投放笔记有无“急救”“一夜见效”等夸大表述','同类反馈占比是否在上升'],rec:'respond',
+ pr:'感谢您的反馈与支持！我们的产品经过多项功效测试，效果因人而异，建议坚持使用一个周期哦，如有疑问请联系客服～',
+ real:x=>`谢谢你认真写完感受。你说「${x.d}」，这确实是我们宣传上把话说满了：修护精华主要管屏障稳定，对毛孔和暗沉帮助有限，“急救”这种说法我们已经请合作博主今天起不再用。觉得不值的话，没开封的那瓶可以直接退。`,
+ dm:x=>`你好，看到你写的“${x.d}”，谢谢愿意花时间写。想问问你最想改善的是哪一点？我会如实告诉你我们哪款有用、哪款没用，不推销。`,
+ fix:['下线含夸大表述的投放素材','详情页写清“适合 / 不适合”'],tk:x=>`【用户反馈·功效落差】${x.d}。建议市场部下线含“急救 / 一夜见效”表述的素材。`,rel:['熬夜','保湿','红血丝']},
+logi:{tr:'可信',conf:90,why:'物流和包装问题，事实清楚、责任明确，也是最容易通过补救变成好评的一类。越快越好。',ev:['订单物流轨迹','破损照片（她已发的可直接用）','该仓或线路近期破损率'],rec:'service',
+ pr:'亲，给您带来不便深表歉意，物流问题我们也无法控制，请联系客服处理，感谢您的理解与支持～',
+ real:x=>`抱歉，「${x.d}」这个确实是我们打包没做好。今天给你补发一瓶，不用退回，坏的那瓶直接丢掉就好。我们这周起把精华换成加厚气泡袋，后面会更新在这条下面。`,
+ dm:x=>`你好，看到你说${x.d}，补发已经安排了，单号今天下午发你，坏的那瓶不用寄回。`,
+ fix:['当天补发，不要求退回','包装升级并公开说明'],tk:x=>`【用户反馈·包装】${x.d}。请供应链评估泵头运输保护与外箱抗压。`,rel:['包装','旅行装']},
+svc:{tr:'可信',conf:86,why:'她不满的不是产品，是被敷衍。公开回应时最忌再发一段模板话术。',ev:['调取对话记录','确认工单当前状态和卡点'],rec:'respond',
+ pr:'亲，非常抱歉给您带来不好的体验，我们一直致力于为顾客提供优质服务，您的问题已反馈，请耐心等待，感谢您的理解与支持～',
+ real:x=>`你说得对，「${x.d}」这样的回复等于没回。我是客服组负责人，刚看了记录，确实是我们处理慢了。你的问题今天由我本人跟进，进度直接回在这里。`,
+ dm:x=>`你好，我是客服组负责人。刚看了你之前的对话，是我们没处理好。你现在最需要解决的是哪件事？今天给你结果。`,
+ fix:['负责人实名接手','当天给出结果','复盘客服话术模板'],tk:x=>`【客服质检】${x.d}。请复盘过敏类咨询的标准话术，禁止只回复“建议停用”。`,rel:['客服']},
+price:{tr:'可信',conf:84,why:'老客觉得被背刺，是价格体系问题。不要说“活动规则如此”，要给一个对老客公平的办法。',ev:['购买时间与成交价','是否在价保期内'],rec:'respond',
+ pr:'亲，活动价格以页面为准哦，感谢您一直以来的支持，后续还会有更多优惠活动，敬请关注～',
+ real:x=>`这事换谁都会不舒服：「${x.d}」。7 天内买的我们都按直播价退差价，订单尾号回在这里就行，不用去找客服。以后大促前我们会提前在主页说清楚价格安排。`,
+ dm:x=>`你好，差价已经按直播价给你退了，今天到账。谢谢你说出来。`,
+ fix:['7 天价保退差价','大促前公开价格安排'],tk:x=>`【价格体系】${x.d}。建议运营评估老客价保机制。`,rel:['直播间']},
+misuse:{tr:'可信',conf:83,why:'大概率是使用方法问题（叠用或用量），但不能说“是你用错了”。把方法讲清楚，同时认下说明没写清楚。',ev:['叠用的产品和顺序','单次用量'],rec:'respond',
+ pr:'亲，我们的产品是安全的哦，可能是您使用方法不当导致的，建议按说明书使用，如有疑问请私信小助手～',
+ real:x=>`谢谢你说出来。「${x.d}」，多半和用法有关：${x.k.includes('A醇')?'A醇和这瓶最好错开早晚用':'每次两泵就够，用多了容易搓泥'}。这一点我们详情页确实没写清楚，今天会补上。如果现在脸还不舒服，先停用，退款我们先给你办。`,
+ dm:x=>`你好，给你发一张图文用法，主要是${x.k.includes('A醇')?'和A醇错开早晚':'每次两泵'}。如果还有不适随时告诉我。`,
+ fix:['补充详情页用法说明','私信发图文用法'],tk:x=>`【说明书】${x.d}。请在详情页和瓶身补充叠用与用量提示。`,rel:['A醇','不搓泥','肤感']},
+fake:{tr:'疑似不实',conf:68,why:'没有提到购买渠道、使用经历或具体时间，属于无法核实的断言。不要在评论区对骂，也不要私信施压，走平台申诉，用证据说话。',ev:['该账号有无店铺购买记录（需平台核验）','产品备案编号与成分表','第三方检测报告（激素、重金属）','同一时段是否有相似措辞集中出现'],rec:'appeal',
+ pr:'本品牌产品均有正规备案，网传信息纯属造谣，我们已保留证据，将依法追究相关人员责任！',
+ real:x=>`你提到「${x.d}」，看到很着急，但我们想把事实摆出来：雾屿修护精华有国妆备案，编号在药监局官网可查；最近一次第三方检测报告今天会放到主页置顶，激素项目为未检出。如果你或朋友真的用后不适，请一定告诉我们，我们负责到底。`,
+ dm:null,fix:['提交平台申诉证据包','主页置顶检测报告'],tk:null,rel:['回购','敏感肌']},
+quality:{tr:'需核实',conf:77,why:'可能是真实的批次问题，也最可能升级成公共事件。先控制风险（同批次暂停发货、留样复检），再回应。',ev:['批次号与生产日期','同批次投诉数','留样复检结果'],rec:'service',
+ pr:'亲，我们的产品都是正品，均经过严格质检，请放心使用，如有疑问请私信小助手～',
+ real:x=>`谢谢你告诉我们。「${x.d}」不正常，请先别用了。麻烦把瓶底批次号发我们，今天就调留样复检，同批次暂停发货。结果会更新在这条下面，最晚周五。`,
+ dm:x=>`你好，关于${x.d}，退款已经办好。能否拍一下瓶底批次号？我们今天送检，结果出来当天告诉你。`,
+ fix:['同批次暂停发货','留样复检','结果公开'],tk:x=>`【质量预警】${x.d}。请质量部立即调取该批次留样复检，评估暂停发货。`,rel:['空瓶','回购']}
+};
+const STRAT={respond:'真诚公开回应',service:'客服介入补救',amplify:'让真实好评被看见',appeal:'申诉证据包'};
+
+function humanScore(txt,x){
+  const hits=PR.filter(p=>txt.includes(p));
+  const c=[['复述了她的具体遭遇',txt.includes(x.d)],['给出具体动作',/退款|补发|退差价|复检|暂停发货|跟进|补上|下线|检测报告|退/.test(txt)],['有时间承诺',/今天|下班前|小时|这周|周五|7 天/.test(txt)],['不把人往私信里带、不要求删帖',!/私信小助手|联系客服|删/.test(txt)],[hits.length?`套话 ${hits.length} 处`:'没有套话',!hits.length]];
+  const sc=Math.max(5,Math.min(98,30+(c[0][1]?20:0)+(c[1][1]?15:0)+(c[2][1]?15:0)+(c[3][1]?15:0)-10*hits.length));
+  let h=esc(txt);hits.forEach(p=>h=h.split(esc(p)).join(`<mark>${esc(p)}</mark>`));
+  return{sc,c,h};
+}
+const copyBtn=t=>`<button class="copy" data-copy="${esc(t)}">复制</button>`;
+const invite=u=>`你好呀，看到你写的「${u.d}」，特别真实。想问问能不能授权我们把这篇笔记通过合作广场加热，让更多同肤质的人看到？内容一个字都不改，平台会按规则给你激励分成。不愿意也完全没关系，谢谢你写下来。`;
+const thanks=u=>`谢谢你愿意写下「${u.d}」。这种具体的反馈对我们和后来的人都很有用。有任何使用上的问题，直接在这里问我们就好。`;
+
+function stratHTML(x,k){
+  const kb=K[x.c];
+  if(k==='respond'){const a=humanScore(kb.pr,x),b=humanScore(kb.real(x),x);
+    const ver=(v,cls,l,raw)=>`<div class="ver ${cls}"><div class="vh"><span>${l}</span><span>活人感 <span class="num">${v.sc}</span></span></div><div class="tx">${v.h}</div><ul class="chk">${v.c.map(([t,ok])=>`<li class="${ok?'y':'n'}">${t}</li>`).join('')}</ul>${raw?`<div style="margin-top:8px;text-align:right">${copyBtn(raw)}</div>`:''}</div>`;
+    return`<div class="cmp">${ver(a,'bad2','公关腔（不建议）')}${ver(b,'good','真人版（建议）',kb.real(x))}</div>`}
+  if(k==='service'){const dm=kb.dm?kb.dm(x):'';return`${dm?`<div class="box"><div class="bh"><span>客服私信话术</span>${copyBtn(dm)}</div>${esc(dm)}</div>`:''}<div class="box"><div class="bh">补救动作</div><ol class="lst">${kb.fix.map(f=>`<li>${f}</li>`).join('')}</ol><div class="dont">不要做：要求删帖或改评，用补偿换好评，私信里争辩责任。</div></div>`}
+  if(k==='amplify'){
+    const seen=new Set(),ugc=items.filter(u=>u.s==='pos'&&u.time>now-30*D&&u.time<=now&&u.k.some(t=>kb.rel.includes(t))).sort((a,b)=>b.likes-a.likes).filter(u=>!seen.has(u.d)&&seen.add(u.d)).slice(0,3);
+    return`<div class="box"><div class="bh">让已经存在的真实体验被看见</div>只邀请真实用户授权，不改内容、不代写、不买评论。同肤质的真实好评越多，首屏的信息就越完整，劝退率越低。</div>${ugc.length?`<div class="box"><div class="bh">相关的真实好评（近 30 天，按互动排序）</div>${ugc.map(u=>`<div class="ugc"><span>${esc(u.t)}<small>${esc(u.au)}，${CH[u.ch]}，赞 ${fmt(u.likes)}</small></span><button class="btn" data-inv="${u.id}">${u.inv?'已邀请':'邀请授权'}</button></div>`).join('')}</div>`:''}<div class="box"><div class="bh"><span>授权邀约话术（合作广场）</span>${copyBtn(invite(ugc[0]||x))}</div>${esc(invite(ugc[0]||x))}</div>`}
+  if(k==='appeal'){const pack=`【内容定位】${CH[x.ch]}，发布于 ${new Date(x.time).toLocaleString('zh-CN',{hour12:false})}\n【争议陈述】${x.d}\n【事实与证据】1. 产品国妆备案编号与成分表；2. 最近一批第三方检测报告（激素项目未检出）；3. 店铺订单中未匹配到该账号的购买记录（需平台核验）\n【诉求】请依据社区规范核查该内容是否属实，必要时添加提示或处理`;
+    return`<div class="box"><div class="bh"><span>平台申诉证据包</span>${copyBtn(pack)}</div><div style="white-space:pre-wrap">${esc(pack)}</div><div class="dont">不要做：在评论区对骂，威胁起诉，查找或公开发帖人信息。</div></div><div class="box"><div class="bh"><span>同步的公开说明（摆事实，不定性）</span>${copyBtn(kb.real(x))}</div>${esc(kb.real(x))}</div>`}
+  return'';
+}
+
+function drawerHTML(x){
+  const facN=['关键词严重度','账号影响力','互动热度','搜索曝光位','附和评论'],facM=[30,20,20,15,15];
+  let h=`<div class="dh"><span class="sp ${x.s}">${SN[x.s]}</span><b>${CATN[x.c]}</b>${x.custom?'<span class="sp neu">手动研判</span>':''}<button class="x" id="dClose" aria-label="关闭">×</button></div><div class="db">`;
+  h+=`<div class="sec"><h4>她说了什么</h4><div class="orig"><div class="au"><span class="av" style="background:${avc(x.au)}">${esc([...x.au][0])}</span><b>${esc(x.au)}</b><span>粉丝 ${fmt(x.fans)}</span><span>${CH[x.ch]}</span><span>${ago(x.time)}</span></div><div class="tx">${esc(x.t)}</div><div class="meta" style="margin-top:8px"><span>赞 ${fmt(x.likes)}</span><span>评论 ${fmt(x.cmts)}</span>${x.echo?`<span>${x.echo} 人附和</span>`:''}${rankOf[x.id]?`<span class="pill top">搜索首屏第 ${rankOf[x.id]} 篇</span>`:''}</div></div></div>`;
+  if(x.s==='neg'){const kb=K[x.c];if(!st.strat)st.strat=kb.rec;
+    h+=`<div class="sec"><h4>有多急</h4><div class="rk2"><div class="big">${x.risk}<small>风险分，满分 100</small></div><div>${x.rf.map((v,i)=>`<div class="fac"><span>${facN[i]}</span><span class="bar"><i style="width:${v/facM[i]*100}%"></i></span><span class="num">${Math.round(v)}</span></div>`).join('')}</div></div></div>`;
+    h+=`<div class="sec"><h4>为什么不满意</h4><div class="jg"><div><span>原因</span><b>${CATN[x.c]}</b></div><div><span>真实性</span><b style="color:${kb.tr==='疑似不实'?'var(--redt)':kb.tr==='需核实'?'var(--ambt)':'var(--grnt)'}">${kb.tr}</b></div><div><span>置信度</span><b class="num">${x.custom?Math.max(55,kb.conf-12):kb.conf}%</b></div></div><p class="why">${kb.why}</p><h4 style="margin-top:12px">回应前先核对</h4><ul class="ev">${kb.ev.map(e=>`<li><label><input type="checkbox">${e}</label></li>`).join('')}</ul></div>`;
+    const opts=['respond','service','amplify'].concat(x.c==='fake'?['appeal']:[]);
+    h+=`<div class="sec"><h4>怎么回应</h4><p class="oathline">回应守则：要及时，要具体，说到要做到。</p><div class="strat">${opts.map(o=>`<button class="${st.strat===o?'on':''}" data-strat="${o}">${STRAT[o]}${kb.rec===o?'<span class="rec">推荐</span>':''}</button>`).join('')}</div>${stratHTML(x,st.strat)}</div>`;
+    if(kb.tk)h+=`<div class="sec"><h4>交给内部改进</h4><div class="box" style="margin-top:0"><div class="bh"><span>改进工单</span>${copyBtn(kb.tk(x))}</div>${esc(kb.tk(x))}</div></div>`;
+    h+=`</div><div class="da"><button class="btn" data-status="doing" ${x.status==='doing'?'disabled':''}>${x.status==='doing'?'处理中':'标记处理中'}</button><button class="btn red" data-status="done" ${x.status==='done'?'disabled':''}>${x.status==='done'?'已回应':'标记已回应'}</button></div>`;
+  }else if(x.s==='pos'){
+    h+=`<div class="sec"><h4>这是一条什么样的好评</h4><div class="jg"><div><span>类型</span><b>真实好评</b></div><div><span>可否加热</span><b style="color:var(--grnt)">可邀请授权</b></div><div><span>聊到</span><b>${esc(x.k[0])}</b></div></div><p class="why">内容具体，有使用时长或场景细节，是同类用户最信任的那种声音。先回一句真诚的谢谢；如果她愿意，通过合作广场取得授权后加热，比品牌自己发内容更有说服力。</p></div><div class="sec"><h4>回她一句谢谢</h4><div class="box" style="margin-top:0"><div class="bh"><span>公开回复</span>${copyBtn(thanks(x))}</div>${esc(thanks(x))}</div></div><div class="sec"><h4>邀请授权</h4><div class="box" style="margin-top:0"><div class="bh"><span>邀约话术（合作广场）</span>${copyBtn(invite(x))}</div>${esc(invite(x))}</div></div></div><div class="da"><button class="btn red" data-inv="${x.id}">${x.inv?'已邀请授权':'邀请她授权加热'}</button></div>`;
+  }else{
+    const r=x.r||'谢谢你问，这个问题我们在这里公开回答：（请运营补充具体信息）';
+    h+=`<div class="sec"><h4>她想知道什么</h4><div class="jg"><div><span>类型</span><b>咨询求问</b></div><div><span>购买意向</span><b style="color:var(--grnt)">较高</b></div><div><span>建议时效</span><b>2 小时内</b></div></div><p class="why">提问的人往往已经在决策边缘，公开回答也会被后来搜索的人看到。答得具体、诚实，比推销更能促成购买。</p></div><div class="sec"><h4>建议公开回复</h4><div class="box" style="margin-top:0"><div class="bh"><span>回复</span>${copyBtn(r)}</div>${esc(r)}</div></div></div>`;
+  }
+  return h;
+}
+function openD(idn){const x=items.find(i=>i.id===+idn);if(!x)return;if(st.open!==x.id)st.strat=null;st.open=x.id;$('#drawer').innerHTML=drawerHTML(x);$('#drawer').classList.add('on');$('#mask').classList.add('on')}
+function closeD(){st.open=null;$('#drawer').classList.remove('on');$('#mask').classList.remove('on')}
+
+// ===== 研判一条 =====
+function classify(t){
+  const rules=[[/激素|三无|住院|贴牌|造假|骗子|假货/,'fake'],[/变质|酸味|絮状|异味|发霉|分层/,'quality'],[/叠用|叠加|叠着|A醇|几泵|用量|搓泥/,'misuse'],[/过敏|烂脸|刺痛|泛红|痒|爆痘|闭口|红肿/,'allergy'],[/快递|物流|漏|破|压扁|包装|泵头/,'logi'],[/客服|退款|售后|不回|敷衍/,'svc'],[/降价|差价|五折|原价|背刺|贵/,'price'],[/没效果|没用|智商税|没变化|没感觉|夸大/,'gap']];
+  const posW=/好用|回购|推荐|喜欢|温和|舒服|惊喜|爱了|空瓶|不错|稳|改善|好看|没泛红|不过敏/,negW=/不推荐|别买|避雷|失望|差|垃圾|坑/;
+  let c=null;for(const[re,k]of rules)if(re.test(t)){c=k;break}
+  let s;if(posW.test(t)&&!negW.test(t)&&!/烂脸|刺痛|过敏了|变质|漏/.test(t)){s='pos';c='praise'}else if(c||negW.test(t)){s='neg';c=c||'gap'}else{s=/[?？吗]/.test(t)?'neu':'pos';c=s==='neu'?'ask':'praise'}
+  const lex=Object.keys(SEV).concat(['敏感肌','回购','温和','包装','A醇','空瓶']);
+  let k=lex.filter(w=>t.includes(w));if(/过敏/.test(t)&&!k.includes('过敏'))k.push('过敏');if(!k.length)k=[s==='neg'?'差评':s==='pos'?'好评':'咨询'];
+  const segs=t.split(/[，。！!？?,；;\n]/).map(z=>z.trim()).filter(Boolean);
+  let d=segs.find(z=>k.some(w=>z.includes(w)))||segs[0]||t;if(d.length>26)d=d.slice(0,26)+'…';
+  return{s,c,d,k};
+}
+CH.forEach((c,i)=>{$('#fCh').insertAdjacentHTML('beforeend',`<option value="${i}">${c}</option>`);$('#pCh').insertAdjacentHTML('beforeend',`<option value="${i}" ${i===2?'selected':''}>${c}</option>`)});
+function openM(){$('#modal').classList.add('on');$('#mask').classList.add('on');setTimeout(()=>$('#pTxt').focus(),50)}
+function closeM(){$('#modal').classList.remove('on');if(!st.open)$('#mask').classList.remove('on')}
+$('#pGo').onclick=()=>{
+  const t=$('#pTxt').value.trim();if(!t){$('#pTxt').focus();return}
+  const r=classify(t),ch=+$('#pCh').value;
+  const x=mk({s:r.s,c:r.c,t,d:r.d,k:r.k,ch:[ch]},now,{ch,raw:1,fans:ch<2?3200:180,likes:ch<2?260:12,echo:0,top:false,status:'new',au:'手动粘贴'});
+  x.custom=true;emit(x);render();closeM();$('#pTxt').value='';openD(x.id);
+};
+
+// ===== 事件 =====
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,.mask');if(!t)return;const ds=t.dataset;
+  if(t.id==='mask'){closeD();closeM();return}
+  if(t.id==='dClose'){closeD();return}
+  if(t.id==='howBtn'){$('#howbox').classList.toggle('on');$('#sx')._h=null;return}
+  if(ds.copy!=null){const v=ds.copy;(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).catch(()=>{const a=document.createElement('textarea');a.value=v;document.body.append(a);a.select();document.execCommand('copy');a.remove()});toast('<div class="h">已复制</div>','info');return}
+  if(ds.ex){$('#pTxt').value=ds.ex;return}
+  if(ds.strat){st.strat=ds.strat;openD(st.open);return}
+  if(ds.q){st.q=ds.q;render();return}
+  if(ds.inv){const u=items.find(i=>i.id===+ds.inv);if(u){u.inv=true;t.textContent=t.closest('.da')?'已邀请授权':'已邀请';toast('<div class="h">已发送授权邀约</div><p>她同意后，这篇笔记会进入合作广场候选，可直接加热。</p>','info');render()}return}
+  if(ds.status){const x=items.find(i=>i.id===st.open);if(!x)return;const ri0=rankOf[x.id],before=ri0?slotDebt(x,ri0-1):0;x.status=ds.status;if(ds.status==='done')x.rt=now-x.time;
+    const after=ri0?slotDebt(x,ri0-1):0;render();openD(x.id);
+    if(ds.status==='done')toast(`<div class="h">${logoSVG(22)}已回应，谢谢你认真对待她</div><p>${before-after>1?`口碑负债每月减少 ${money(before-after)}，`:''}健康度已更新。</p>`,'info');
+    return}
+  if(ds.id){openD(ds.id);return}
+  if(ds.sent){st.sent=st.sent===ds.sent?'all':ds.sent;render();renderFeed();return}
+  if(ds.ch){st.ch=st.ch===+ds.ch?-1:+ds.ch;render();renderFeed();return}
+  if(ds.cat){st.cat=st.cat===ds.cat?null:ds.cat;render();renderFeed();return}
+  if(ds.kw){st.kw=st.kw===ds.kw?null:ds.kw;render();renderFeed();return}
+  if(ds.clr){st[ds.clr]=null;render();renderFeed();return}
+  if(t.parentElement&&t.parentElement.id==='fRange'){st.range=ds.v;render();return}
+  if(t.parentElement&&t.parentElement.id==='fSent'){st.sent=ds.v;render();renderFeed();return}
+  if(t.id==='fReset'){Object.assign(st,{ch:-1,sent:'all',kw:null,cat:null});render();renderFeed();return}
+  if(t.id==='goQ'){st.q='neg';render();$('#qSec').scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(t.id==='bPause'){st.paused=!st.paused;if(st.paused)clearInterval(timer);else timer=setInterval(tick,1000);t.textContent=st.paused?'继续':'暂停';$('#clock').classList.toggle('paused',st.paused);$('#clkL').textContent=st.paused?'已暂停':'正在倾听';return}
+  if(t.id==='bBurst'){if(story&&!story.end)toast('<div class="h">扩散事件进行中</div><p>先去「待你回应」处理那篇首屏笔记。</p>','info');else{startBurst();render()}return}
+  if(t.id==='bPaste'){openM();return}
+  if(t.id==='pCancel'){closeM();return}
+  if(t.id==='bBell'){bell=0;$('#bellN').hidden=true;st.q='neg';render();$('#qSec').scrollIntoView({behavior:'smooth',block:'start'});return}
+});
+$('#fCh').onchange=e=>{st.ch=+e.target.value;render();renderFeed()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeD();closeM()}});
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(render,150)});
+render();renderFeed();
+})();
+</script>
+</body>
+</html>
